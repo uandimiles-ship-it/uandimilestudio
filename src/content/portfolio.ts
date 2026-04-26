@@ -33,7 +33,7 @@ export const portfolio: PortfolioProfile = {
   headline: '영상기획 · 촬영 · 편집 · 모션 그래픽',
   bio: '브랜드 고객 메시지를 "짧고 강하게" 전달하는 영상 콘텐츠를 만듭니다.\n기획부터 촬영, 편집, 모션 그래픽까지 원스톱으로 진행합니다.',
   contact: {
-    email: 'uandimiles@gmail.com',
+    email: 'citytravelmiles@gmail.com',
     youtube: 'https://www.youtube.com/@이순간.김지금',
     facebook: 'https://www.facebook.com/UANDIMILES',
     kakao: 'https://pf.kakao.com/_QxnCzX/chat',
