@@ -4,7 +4,7 @@ import { portfolio, type PortfolioWork } from './content/portfolio'
 function Thumbnail({ id }: { id: string }) {
   const configs: Record<string, { bg1: string; bg2: string; accent: string; label: string; sub: string }> = {
     'work-1': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '브랜드 필름', sub: 'BRAND FILM' },
-    'work-2': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '숏폼 광고', sub: 'SHORT-FORM AD' },
+    'work-2': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '서비스 및 제품소개 - 숏츠 광고', sub: 'SHORT-FORM AD' },
     'work-3': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '공익 홍보영상', sub: 'PUBLIC SERVICE' },
     'work-4': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '개인 프로필', sub: 'PROFILE VIDEO' },
     'work-5': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '동화제작', sub: 'STORY FILM' },
