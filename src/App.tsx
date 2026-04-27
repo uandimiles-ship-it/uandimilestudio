@@ -222,57 +222,111 @@ function App() {
       </main>
 
       {activeWork ? (
-        <div role="dialog" aria-modal="true"
-          className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
-          onMouseDown={(e) => { if (e.target === e.currentTarget) setActiveWorkId(null) }}>
-          <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-2xl">
-            <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
-              <div>
-                <div className="text-sm text-white/60">{activeWork.subtitle ?? ''}{activeWork.year ? ` · ${activeWork.year}` : ''}</div>
-                <div className="mt-1 text-lg font-semibold">{activeWork.title}</div>
-              </div>
-              <button ref={closeButtonRef} type="button" onClick={() => setActiveWorkId(null)}
-                className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10">
-                닫기 (Esc)
-              </button>
-            </div>
-            <div className="grid gap-6 p-5 md:grid-cols-[1.5fr_0.9fr]">
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-                {activeWork.embed ? (
-                  <div className="aspect-video">
-                    <iframe className="h-full w-full"
-                      src={activeWork.embed.type === 'youtube' ? `https://www.youtube.com/embed/${activeWork.embed.id}` : `https://player.vimeo.com/video/${activeWork.embed.id}`}
-                      title={activeWork.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen/>
-                  </div>
-                ) : (
-                  <div className="aspect-video grid place-items-center text-sm text-white/60">영상이 없어요.</div>
-                )}
-              </div>
-              <div className="space-y-4">
-                {activeWork.description ? (
-                  <div>
-                    <div className="text-sm font-semibold">설명</div>
-                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/70">{activeWork.description}</p>
-                  </div>
-                ) : null}
+        activeWork.id === 'work-2' ? (
+          <div role="dialog" aria-modal="true"
+            className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
+            onMouseDown={(e) => { if (e.target === e.currentTarget) setActiveWorkId(null) }}>
+            <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-2xl">
+              <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
                 <div>
-                  <div className="text-sm font-semibold">태그</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {activeWork.tags.map((t) => (
-                      <span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70 notranslate" translate="no">{t}</span>
-                    ))}
-                  </div>
+                  <div className="text-sm text-white/60">{activeWork.subtitle ?? ''}{activeWork.year ? ` · ${activeWork.year}` : ''}</div>
+                  <div className="mt-1 text-lg font-semibold">서비스 및 제품소개</div>
                 </div>
-                <a href={kakaoLink} target="_blank" rel="noreferrer"
-                  className="inline-flex w-full items-center justify-center rounded-2xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
-                  카톡으로 문의하기
-                </a>
+                <button ref={closeButtonRef} type="button" onClick={() => setActiveWorkId(null)}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+                  닫기 (Esc)
+                </button>
+              </div>
+              <div className="grid gap-6 p-5 md:grid-cols-[1.5fr_0.9fr]">
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+                  {activeWork.embed ? (
+                    <div className="aspect-video">
+                      <iframe className="h-full w-full"
+                        src={activeWork.embed.type === 'youtube' ? `https://www.youtube.com/embed/${activeWork.embed.id}` : `https://player.vimeo.com/video/${activeWork.embed.id}`}
+                        title={activeWork.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen/>
+                    </div>
+                  ) : (
+                    <div className="aspect-video grid place-items-center text-sm text-white/60">영상이 없어요.</div>
+                  )}
+                </div>
+                <div className="space-y-4">
+                  {activeWork.description ? (
+                    <div>
+                      <div className="text-sm font-semibold">설명</div>
+                      <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/70">{activeWork.description}</p>
+                    </div>
+                  ) : null}
+                  <div>
+                    <div className="text-sm font-semibold">태그</div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {activeWork.tags.map((t) => (
+                        <span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70 notranslate" translate="no">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <a href={kakaoLink} target="_blank" rel="noreferrer"
+                    className="inline-flex w-full items-center justify-center rounded-2xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
+                    카톡으로 문의하기
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div role="dialog" aria-modal="true"
+            className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
+            onMouseDown={(e) => { if (e.target === e.currentTarget) setActiveWorkId(null) }}>
+            <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-2xl">
+              <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
+                <div>
+                  <div className="text-sm text-white/60">{activeWork.subtitle ?? ''}{activeWork.year ? ` · ${activeWork.year}` : ''}</div>
+                  <div className="mt-1 text-lg font-semibold">{activeWork.title}</div>
+                </div>
+                <button ref={closeButtonRef} type="button" onClick={() => setActiveWorkId(null)}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+                  닫기 (Esc)
+                </button>
+              </div>
+              <div className="grid gap-6 p-5 md:grid-cols-[1.5fr_0.9fr]">
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+                  {activeWork.embed ? (
+                    <div className="aspect-video">
+                      <iframe className="h-full w-full"
+                        src={activeWork.embed.type === 'youtube' ? `https://www.youtube.com/embed/${activeWork.embed.id}` : `https://player.vimeo.com/video/${activeWork.embed.id}`}
+                        title={activeWork.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen/>
+                    </div>
+                  ) : (
+                    <div className="aspect-video grid place-items-center text-sm text-white/60">영상이 없어요.</div>
+                  )}
+                </div>
+                <div className="space-y-4">
+                  {activeWork.description ? (
+                    <div>
+                      <div className="text-sm font-semibold">설명</div>
+                      <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/70">{activeWork.description}</p>
+                    </div>
+                  ) : null}
+                  <div>
+                    <div className="text-sm font-semibold">태그</div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {activeWork.tags.map((t) => (
+                        <span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70 notranslate" translate="no">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <a href={kakaoLink} target="_blank" rel="noreferrer"
+                    className="inline-flex w-full items-center justify-center rounded-2xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
+                    카톡으로 문의하기
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
       ) : null}
     </div>
   )

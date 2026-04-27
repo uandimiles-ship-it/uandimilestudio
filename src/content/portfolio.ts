@@ -59,7 +59,7 @@ export const portfolio: PortfolioProfile = {
       thumbnail: { src: '', alt: '' },
       embed: { type: 'youtube', id: 'NoMqG4FkfnM' },
       link: 'https://youtube.com/shorts/NoMqG4FkfnM?feature=share',
-      description: '서비스 및 제품광고 - 숏츠 광고',
+      description: '숏츠 광고.',
     },
     {
       id: 'work-3',
