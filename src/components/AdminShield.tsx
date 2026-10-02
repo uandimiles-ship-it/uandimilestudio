@@ -1,22 +1,32 @@
+import { useNavigate } from 'react-router-dom'
+
 import { useFirebaseAuth } from '../hooks/useFirebaseAuth'
+
 import { markAdminEntry } from '../lib/adminEntry'
+
 import { AdminShieldIcon } from './AdminShieldIcon'
 
-/** 나우바둑·나우AI처럼 — 방문자에게는 아무것도 안 보이고, 관리자만 방패 FAB */
+/** 관리자(uandimiles@gmail.com)로 로그인한 경우에만 표시 — 비방문자에게 노출 금지 */
 export function AdminShield() {
+  const navigate = useNavigate()
   const { ready, configured, isAdmin } = useFirebaseAuth()
 
   if (!configured || !ready || !isAdmin) return null
 
   return (
-    <a
-      href="/admin"
-      onClick={() => markAdminEntry()}
+    <button
+      type="button"
+      onClick={() => {
+        markAdminEntry()
+        navigate('/admin')
+      }}
       title="관리자"
-      className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-2xl bg-red-600 text-white shadow-lg ring-2 ring-red-400/40"
+      className="fixed bottom-6 right-4 z-[9999] grid h-14 w-14 place-items-center rounded-2xl bg-red-600 text-white shadow-lg ring-2 ring-red-400/40"
       aria-label="관리자"
     >
       <AdminShieldIcon className="h-7 w-7" />
-    </a>
+    </button>
   )
 }
+
+

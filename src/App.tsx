@@ -1,12 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AdminShield } from './components/AdminShield'
 import { useOwnerLogoBootstrap } from './components/OwnerBootstrap'
 import { WorkThumbnail } from './components/WorkThumbnail'
 import { portfolio, type PortfolioWork } from './content/portfolio'
+import { resolveWorkYoutubeId } from './lib/youtubeLink'
 import { usePortfolioWorks } from './hooks/usePortfolioWorks'
 
+function WorkYoutubeEmbed({ work }: { work: PortfolioWork }) {
+  const id = resolveWorkYoutubeId(work)
+  if (!id) {
+    return (
+      <div className="aspect-video grid place-items-center px-4 text-center text-sm text-white/60">
+        영상 링크가 없거나 YouTube 주소를 인식하지 못했습니다.
+      </div>
+    )
+  }
+  return (
+    <div className="aspect-video">
+      <iframe
+        className="h-full w-full"
+        src={`https://www.youtube.com/embed/${id}`}
+        title={work.title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+  )
+}
+
 function App() {
-  const logoBootstrap = useOwnerLogoBootstrap()
+  const navigate = useNavigate()
+  const logoBootstrap = useOwnerLogoBootstrap(() => navigate('/admin'))
   const { works, loading } = usePortfolioWorks()
   const [activeWorkId, setActiveWorkId] = useState<string | null>(null)
   const [slideIndex, setSlideIndex] = useState(0)
@@ -25,6 +50,7 @@ function App() {
   }, [])
 
   const kakaoLink = portfolio.contact.kakao ?? 'http://pf.kakao.com/_QxnCzX'
+  const soomgoLink = portfolio.contact.soomgo?.trim() ?? ''
   const email = portfolio.contact.email
 
   const navLinks = useMemo(() => {
@@ -37,11 +63,66 @@ function App() {
 
   const maxIndex = Math.max(0, works.length - 3)
 
+  const quoteReady = soomgoLink.length > 0
+  const quoteBtnClass =
+    'rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-zinc-950 hover:bg-white/90'
+  const kakaoBtnClass =
+    'rounded-full bg-yellow-400 px-3 py-1.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300'
+
+  function QuoteButton({ className = '' }: { className?: string }) {
+    if (quoteReady) {
+      return (
+        <a
+          href={soomgoLink}
+          target="_blank"
+          rel="noreferrer"
+          className={`${quoteBtnClass} ${className}`}
+        >
+          견적보기
+        </a>
+      )
+    }
+    return (
+      <span
+        className={`${quoteBtnClass} cursor-default opacity-80 ${className}`}
+        title="숨고 링크 연결 예정"
+      >
+        견적보기
+      </span>
+    )
+  }
+
+  function KakaoButton({ className = '' }: { className?: string }) {
+    return (
+      <a href={kakaoLink} target="_blank" rel="noreferrer" className={`${kakaoBtnClass} ${className}`}>
+        카톡 문의하기
+      </a>
+    )
+  }
+
+  function WorkDetailLinks({ work }: { work: PortfolioWork }) {
+    const videoLink = work.link?.trim()
+    const linkClass =
+      'rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:border-white/20 hover:bg-white/10'
+    return (
+      <div className="flex flex-wrap gap-2">
+        {videoLink ? (
+          <a href={videoLink} target="_blank" rel="noreferrer" className={linkClass}>
+            YouTube에서 보기
+          </a>
+        ) : null}
+        <a href={kakaoLink} target="_blank" rel="noreferrer" className={linkClass}>
+          유앤아이 스튜디오 문의
+        </a>
+      </div>
+    )
+  }
+
   function WorkCard({ work }: { work: PortfolioWork }) {
     return (
       <button type="button" onClick={() => setActiveWorkId(work.id)}
         className="group relative w-full flex-shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left backdrop-blur transition hover:border-white/20 hover:bg-white/10 sm:w-1/2 lg:w-[calc(33.333%-10px)]">
-        <div className="aspect-[16/10] w-full overflow-hidden bg-zinc-950 transition duration-300 group-hover:scale-[1.02]">
+        <div className="aspect-video w-full overflow-hidden bg-zinc-950 transition duration-300 group-hover:scale-[1.02]">
           <WorkThumbnail work={work}/>
         </div>
         <div className="p-4">
@@ -73,12 +154,15 @@ function App() {
         <div className="mx-auto max-w-6xl px-5 py-8">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div
-                className="grid h-10 w-10 select-none place-items-center rounded-2xl bg-red-600 text-sm font-semibold touch-none"
+              <img
+                src="/brand/uandi-studio-logo.png"
+                alt="U&I STUDIO"
+                width={40}
+                height={40}
+                draggable={false}
+                className="h-10 w-10 select-none rounded-2xl object-cover touch-none"
                 {...logoBootstrap}
-              >
-                U&I
-              </div>
+              />
               <div>
                 <div className="text-sm text-white/60">Video Portfolio</div>
                 <div className="text-base font-semibold">{portfolio.name}</div>
@@ -89,10 +173,8 @@ function App() {
                 <a key={l.label} href={l.href} target="_blank" rel="noreferrer"
                   className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:border-white/20 hover:bg-white/10">{l.label}</a>
               ))}
-              <a href={kakaoLink} target="_blank" rel="noreferrer"
-                className="rounded-full bg-yellow-400 px-3 py-1.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
-                카톡 문의하기
-              </a>
+              <QuoteButton />
+              <KakaoButton />
             </nav>
           </div>
         </div>
@@ -100,47 +182,58 @@ function App() {
 
       <main className="relative">
         <section className="mx-auto max-w-6xl px-5 pb-10 pt-4">
-          <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-end">
+          <div className="flex flex-col gap-8">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-                <span>기획 · 촬영 · 편집 · 모션 그래픽</span>
+              <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                <span className="leading-snug">{portfolio.heroTag}</span>
               </div>
               <h1 className="mt-5 text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-                · 영상기획 · 촬영 ·<br/>· 편집 · 모션 그래픽 ·
+                · AI 영상 · 기획 · 촬영 ·<br />
+                · 편집 · 모션 그래픽 ·
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/70 whitespace-pre-line">
                 {portfolio.bio}
               </p>
-              <div className="mt-6 flex flex-wrap gap-2 sm:hidden">
-                {navLinks.map((l) => (
-                  <a key={l.label} href={l.href} target="_blank" rel="noreferrer"
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80">{l.label}</a>
-                ))}
-                <a href={kakaoLink} target="_blank" rel="noreferrer"
-                  className="rounded-full bg-yellow-400 px-3 py-1.5 text-sm font-semibold text-zinc-950">카톡 문의하기</a>
+              <div className="mt-6 space-y-2 sm:hidden">
+                <div className="flex flex-wrap gap-2">
+                  {navLinks.map((l) => (
+                    <a key={l.label} href={l.href} target="_blank" rel="noreferrer"
+                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80">{l.label}</a>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <QuoteButton />
+                  <KakaoButton />
+                </div>
               </div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur">
-              <div className="text-sm font-semibold">유앤아이 소개</div>
+              <div className="text-sm font-semibold">유앤아이 스튜디오 소개</div>
               <dl className="mt-4 grid gap-3 text-sm">
                 <div className="flex items-start justify-between gap-4">
                   <dt className="text-white/60">주요 작업</dt>
-                  <dd className="text-right text-white/80">영상 · 숏폼 · 프로필 제작</dd>
+                  <dd className="text-right text-white/80">
+                    {portfolio.intro?.mainWork ?? 'AI · 광고 · 홍보 · 이벤트 · 영상 최적화'}
+                  </dd>
                 </div>
                 <div className="flex items-start justify-between gap-4">
                   <dt className="text-white/60">제공 범위</dt>
-                  <dd className="text-right text-white/80">기획 / 촬영 / 편집 / 모션 그래픽</dd>
+                  <dd className="text-right text-white/80">
+                    {portfolio.intro?.scope ?? '기획 / 촬영 / 편집 / 모션 그래픽'}
+                  </dd>
                 </div>
                 <div className="flex items-start justify-between gap-4">
                   <dt className="text-white/60">납품</dt>
-                  <dd className="text-right text-white/80">롱폼 / 숏폼, 플랫폼 최적화</dd>
+                  <dd className="text-right text-white/80">
+                    {portfolio.intro?.delivery ?? '롱폼 · 숏폼 · 플랫폼별 최적화 납품'}
+                  </dd>
                 </div>
               </dl>
-              <a href={kakaoLink} target="_blank" rel="noreferrer"
-                className="mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
-                카톡 문의하기
-              </a>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <QuoteButton />
+                <KakaoButton />
+              </div>
             </div>
           </div>
         </section>
@@ -149,7 +242,7 @@ function App() {
           <div className="flex items-end justify-between gap-4 mb-6">
             <div>
               <h2 className="text-xl font-semibold tracking-tight">작품</h2>
-              <p className="mt-1 text-sm text-white/60 whitespace-nowrap">카드를 클릭하면 상세하게 볼 수 있어요.</p>
+              <p className="mt-1 text-sm text-white/60">카드를 클릭하면 상세하게 볼 수 있습니다.</p>
             </div>
             <div className="hidden sm:flex items-center gap-2">
               <span className="text-sm text-white/60">{works.length}개</span>
@@ -191,10 +284,8 @@ function App() {
                   <a key={l.label} href={l.href} target="_blank" rel="noreferrer"
                     className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:border-white/20 hover:bg-white/10">{l.label}</a>
                 ))}
-                <a href={kakaoLink} target="_blank" rel="noreferrer"
-                  className="rounded-full bg-yellow-400 px-3 py-1.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
-                  카톡 문의하기
-                </a>
+                <QuoteButton />
+                <KakaoButton />
               </div>
             </div>
           </div>
@@ -222,17 +313,7 @@ function App() {
               </div>
               <div className="grid gap-6 p-5 md:grid-cols-[1.5fr_0.9fr]">
                 <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-                  {activeWork.embed ? (
-                    <div className="aspect-video">
-                      <iframe className="h-full w-full"
-                        src={activeWork.embed.type === 'youtube' ? `https://www.youtube.com/embed/${activeWork.embed.id}` : `https://player.vimeo.com/video/${activeWork.embed.id}`}
-                        title={activeWork.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen/>
-                    </div>
-                  ) : (
-                    <div className="aspect-video grid place-items-center text-sm text-white/60">영상이 없어요.</div>
-                  )}
+                  <WorkYoutubeEmbed work={activeWork} />
                 </div>
                 <div className="space-y-4">
                   {activeWork.description ? (
@@ -249,6 +330,7 @@ function App() {
                       ))}
                     </div>
                   </div>
+                  <WorkDetailLinks work={activeWork} />
                   <a href={kakaoLink} target="_blank" rel="noreferrer"
                     className="inline-flex w-full items-center justify-center rounded-2xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
                     카톡으로 문의하기
@@ -274,17 +356,7 @@ function App() {
               </div>
               <div className="grid gap-6 p-5 md:grid-cols-[1.5fr_0.9fr]">
                 <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-                  {activeWork.embed ? (
-                    <div className="aspect-video">
-                      <iframe className="h-full w-full"
-                        src={activeWork.embed.type === 'youtube' ? `https://www.youtube.com/embed/${activeWork.embed.id}` : `https://player.vimeo.com/video/${activeWork.embed.id}`}
-                        title={activeWork.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen/>
-                    </div>
-                  ) : (
-                    <div className="aspect-video grid place-items-center text-sm text-white/60">영상이 없어요.</div>
-                  )}
+                  <WorkYoutubeEmbed work={activeWork} />
                 </div>
                 <div className="space-y-4">
                   {activeWork.description ? (
@@ -301,6 +373,7 @@ function App() {
                       ))}
                     </div>
                   </div>
+                  <WorkDetailLinks work={activeWork} />
                   <a href={kakaoLink} target="_blank" rel="noreferrer"
                     className="inline-flex w-full items-center justify-center rounded-2xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
                     카톡으로 문의하기

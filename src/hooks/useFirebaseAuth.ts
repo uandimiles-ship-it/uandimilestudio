@@ -15,14 +15,12 @@ export function useFirebaseAuth() {
       return
     }
     const auth = getFirebaseAuth()
-    let unsub = () => {}
-    void completeGoogleSignInRedirect().finally(() => {
-      unsub = onAuthStateChanged(auth, (u) => {
-        setUser(u)
-        setReady(true)
-      })
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u)
+      setReady(true)
     })
-    return () => unsub()
+    void completeGoogleSignInRedirect()
+    return unsub
   }, [configured])
 
   const isAdmin = isAdminEmail(user?.email)

@@ -3,13 +3,23 @@ import { getAuth, type Auth } from 'firebase/auth'
 import { getFirestore, type Firestore } from 'firebase/firestore'
 import { getStorage, type FirebaseStorage } from 'firebase/storage'
 
+/** 웹·앱 공통 (Firebase 웹 API 키는 공개값) */
+const fallback = {
+  apiKey: 'AIzaSyDHLj36DDMvtdufEOKotS-vFOTluGAuR5E',
+  authDomain: 'uandimilestudio.firebaseapp.com',
+  projectId: 'uandimilestudio',
+  storageBucket: 'uandimilestudio.firebasestorage.app',
+  messagingSenderId: '117271698480',
+  appId: '1:117271698480:web:50214431a188b4fc19a1f5',
+}
+
 const config = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || fallback.apiKey,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || fallback.authDomain,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || fallback.projectId,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || fallback.storageBucket,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || fallback.messagingSenderId,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || fallback.appId,
 }
 
 export function isFirebaseConfigured(): boolean {

@@ -1,9 +1,10 @@
 import { useRef } from 'react'
 import { useFirebaseAuth } from '../hooks/useFirebaseAuth'
+import { markAdminEntry } from '../lib/adminEntry'
 import { signInWithGoogle } from '../lib/googleSignIn'
 
-/** U&I 로고 3초 길게 누르기 → Google 연결 (공개 로그인 화면 없음) */
-export function useOwnerLogoBootstrap() {
+/** U&I 로고 3초 길게 누르기 — 로그인 또는 관리자 화면 */
+export function useOwnerLogoBootstrap(onOpenAdmin?: () => void) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { configured, isAdmin } = useFirebaseAuth()
 
@@ -13,10 +14,15 @@ export function useOwnerLogoBootstrap() {
   }
 
   function onPointerDown() {
-    if (!configured || isAdmin) return
+    if (!configured) return
     clear()
     timer.current = setTimeout(() => {
-      void signInWithGoogle()
+      if (isAdmin) {
+        markAdminEntry()
+        onOpenAdmin?.()
+      } else {
+        void signInWithGoogle()
+      }
     }, 3000)
   }
 

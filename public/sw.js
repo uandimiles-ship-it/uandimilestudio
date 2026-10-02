@@ -1,6 +1,15 @@
 /* U&I STUDIO — minimal PWA service worker (install + offline shell) */
-const CACHE = 'uandimilestudio-v1'
-const PRECACHE = ['/', '/index.html', '/manifest.webmanifest', '/pwa-icon.svg', '/favicon.svg']
+const CACHE = 'uandimilestudio-v2'
+const PRECACHE = [
+  '/',
+  '/index.html',
+  '/manifest.webmanifest',
+  '/pwa-icon-192.png',
+  '/pwa-icon-512.png',
+  '/favicon-32.png',
+  '/apple-touch-icon.png',
+  '/brand/uandi-studio-logo.png',
+]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
