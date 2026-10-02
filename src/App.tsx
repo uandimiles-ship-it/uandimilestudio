@@ -246,7 +246,7 @@ function App() {
           {loading ? (
             <p className="text-sm text-white/50">작품 불러오는 중…</p>
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
               {works.map((w) => <WorkCard key={w.id} work={w} />)}
             </div>
           )}
