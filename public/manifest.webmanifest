@@ -3,7 +3,7 @@
   "name": "U&I STUDIO",
   "short_name": "U&I STUDIO",
   "description": "유앤아이 스튜디오 · 영상 포트폴리오",
-  "start_url": "/",
+  "start_url": "https://uandimilestudio-828.netlify.app/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

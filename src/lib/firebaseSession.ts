@@ -12,12 +12,12 @@ export async function ensureFirebaseWebSession(): Promise<void> {
   if (auth.currentUser) return
 
   if (!isCapacitorNative()) {
-    throw new Error('로그인이 필요합니다. 방패(🛡)로 다시 들어와 주세요.')
+    throw new Error('로그인이 필요합니다. 로고 3초 길게 누른 뒤 Google 로그인해 주세요.')
   }
 
   const { user: nativeUser } = await FirebaseAuthentication.getCurrentUser()
   if (!nativeUser) {
-    throw new Error('로그인이 필요합니다. 방패(🛡)로 Google 로그인 후 관리자에 들어와 주세요.')
+    throw new Error('로그인이 필요합니다. 로고 3초 길게 누른 뒤 Google 로그인해 주세요.')
   }
 
   const { token } = await FirebaseAuthentication.getIdToken({ forceRefresh: true })
@@ -42,7 +42,7 @@ export function formatFirebaseWriteError(err: unknown): string {
     )
   }
   if (code === 'unauthenticated') {
-    return '로그인이 만료됐습니다. 포트폴리오 → 방패 → 관리자로 다시 들어와 주세요.'
+    return '로그인이 만료됐습니다. 로고 3초 길게 누른 뒤 관리자로 다시 들어와 주세요.'
   }
   if (code === 'storage/unauthorized') {
     return '썸네일 업로드 권한이 없습니다. 관리자 계정으로 로그인했는지 확인해 주세요.'

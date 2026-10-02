@@ -39,7 +39,12 @@ VITE_FIREBASE_APP_ID=...
 (관리자 메일은 코드·규칙에 `uandimiles@gmail.com` 고정 — env 불필요)
 ```
 
-Netlify: **Site settings → Environment variables**에 동일 키 등록 후 재배포.
+Netlify (**uandimilestudio-828**): **Site settings → Environment variables**에 동일 키 등록 후 재배포.
+
+**Authentication → Settings → Authorized domains**에 다음을 추가:
+
+- `uandimilestudio-828.netlify.app`
+- `localhost` (로컬 개발)
 
 ## 3. 보안 규칙 배포
 
@@ -56,10 +61,9 @@ firebase deploy --only firestore:rules,storage
 
 ## 4. 첫 데이터 올리기
 
-1. 배포된 사이트에서 `https://uandimilestudio.netlify.app/admin` 접속
-2. Google 로그인 (allowlist에 있는 메일)
-3. **로컬 기본값 시드** 클릭 → NOW World 8개 작품이 Firestore에 생성됨
-4. 각 작품에서 YouTube ID·설명·썸네일 수정 후 **Firestore에 저장**
+1. [https://uandimilestudio-828.netlify.app/](https://uandimilestudio-828.netlify.app/) → 로고 **3초 길게 누르기** → Google 로그인 (`uandimiles@gmail.com`) → 관리자 방패 → `/admin`
+2. **로컬 기본값 시드** 클릭 → 번들 작품이 Firestore에 생성됨
+3. 각 작품에서 YouTube ID·설명·썸네일 수정 후 **Firestore에 저장**
 
 ## 5. 나우 AI 앱 연동 (추후)
 
