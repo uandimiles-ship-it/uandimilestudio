@@ -120,12 +120,14 @@ function App() {
       <button
         type="button"
         onClick={() => setActiveWorkId(work.id)}
-        className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left outline-none hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+        className="group w-full rounded-2xl p-2 text-left outline-none transition-colors duration-150 hover:bg-white/[0.07] focus-visible:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
       >
-        <div className="aspect-video w-full overflow-hidden bg-zinc-950">
+        <div
+          className="aspect-video w-full overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-inset ring-white/10 transition-[box-shadow,background-color] duration-150 group-hover:ring-white/30 group-hover:bg-zinc-900"
+        >
           <WorkThumbnail work={work}/>
         </div>
-        <div className="p-4">
+        <div className="px-1 pb-1 pt-3">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-sm text-white/60">{work.subtitle ?? ''}</div>
