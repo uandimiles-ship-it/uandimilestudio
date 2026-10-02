@@ -118,8 +118,8 @@ function App() {
   function WorkCard({ work }: { work: PortfolioWork }) {
     return (
       <button type="button" onClick={() => setActiveWorkId(work.id)}
-        className="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left backdrop-blur transition hover:border-white/20 hover:bg-white/10">
-        <div className="aspect-video w-full overflow-hidden bg-zinc-950 transition duration-300 group-hover:scale-[1.02]">
+        className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left backdrop-blur transition-colors hover:border-white/20 hover:bg-white/10">
+        <div className="aspect-video w-full overflow-hidden bg-zinc-950">
           <WorkThumbnail work={work}/>
         </div>
         <div className="p-4">
