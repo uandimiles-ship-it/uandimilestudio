@@ -42,7 +42,7 @@ export function ThumbnailFramedImage({
     return () => ro.disconnect()
   }, [useSimpleContain])
 
-  const rootClass = `relative h-full w-full overflow-hidden bg-zinc-950 ${className}`
+  const rootClass = `absolute inset-0 overflow-hidden bg-zinc-950 ${className}`
 
   if (useSimpleContain) {
     return (
@@ -63,7 +63,7 @@ export function ThumbnailFramedImage({
 
   return (
     <div ref={boxRef} className={rootClass}>
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         {sized ? (
           <div style={thumbnailInnerStyle(L, size.w, size.h)}>
             <img

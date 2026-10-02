@@ -176,7 +176,7 @@ export function WorkThumbnail({ work }: { work: PortfolioWork }) {
 
         layout={work.thumbnailLayout}
 
-        className="h-full w-full"
+        className="absolute inset-0"
 
         onError={() => setFailedSrc(src)}
 
@@ -186,7 +186,11 @@ export function WorkThumbnail({ work }: { work: PortfolioWork }) {
 
   }
 
-  return <PlaceholderSvg id={work.id} title={work.title} />
+  return (
+    <div className="absolute inset-0">
+      <PlaceholderSvg id={work.id} title={work.title} />
+    </div>
+  )
 
 }
 
