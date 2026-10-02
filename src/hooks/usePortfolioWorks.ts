@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { PortfolioWork } from '../content/portfolio'
 import { PORTFOLIO_WORKS_UPDATED_EVENT } from '../lib/localPortfolioStore'
+import { isCapacitorNative } from '../lib/platform'
 import { fetchPortfolioWorks } from '../lib/worksRepository'
 
 export function usePortfolioWorks() {
@@ -23,9 +24,14 @@ export function usePortfolioWorks() {
       void load()
     }
     window.addEventListener(PORTFOLIO_WORKS_UPDATED_EVENT, onUpdated)
+    function onFocus() {
+      if (!isCapacitorNative()) void load()
+    }
+    window.addEventListener('focus', onFocus)
     return () => {
       cancelled = true
       window.removeEventListener(PORTFOLIO_WORKS_UPDATED_EVENT, onUpdated)
+      window.removeEventListener('focus', onFocus)
     }
   }, [])
 

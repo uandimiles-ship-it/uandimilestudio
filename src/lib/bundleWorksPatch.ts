@@ -103,21 +103,11 @@ function needsWorkPatch(
 
 
   if (id === 'work-2') {
-
     return (
-
       stale.embed?.id === 'ogRnN_z5wSQ' ||
-
       stale.title.includes('NOW Music') ||
-
-      !(stale.thumbnail.src ?? '').includes('work-2-uandi-studio') ||
-
-      (stale.description?.includes('다이어트 의류') ?? false) ||
-
-      !(stale.description?.includes('화장품') ?? false)
-
+      !(stale.thumbnail.src ?? '').includes('work-2-uandi-studio')
     )
-
   }
 
 
@@ -173,11 +163,14 @@ export function patchLocalWorksFromBundle(works: PortfolioWork[]): PortfolioWork
 
 
     const next: PortfolioWork = {
-
       ...bundled,
-
+      description: stale?.description?.trim() ? stale.description : bundled.description,
+      tags: stale?.tags?.length ? stale.tags : bundled.tags,
+      title: stale?.title?.trim() ? stale.title : bundled.title,
+      creator: stale?.creator?.trim() ? stale.creator : bundled.creator,
+      subtitle: stale?.subtitle?.trim() ? stale.subtitle : bundled.subtitle,
+      year: stale?.year ?? bundled.year,
       thumbnailLayout: stale?.thumbnailLayout ?? bundled.thumbnailLayout,
-
     }
 
     const idx = patched.findIndex((w) => w.id === id)

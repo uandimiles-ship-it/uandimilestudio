@@ -39,18 +39,17 @@ import { ensureFirebaseWebSession, formatFirebaseWriteError } from './firebaseSe
 import { patchLocalWorksFromBundle } from './bundleWorksPatch'
 import { loadLocalPortfolioWorks, saveLocalPortfolioWorks } from './localPortfolioStore'
 import { sanitizeWorkThumbnail } from './thumbnailResolve'
+import { isCapacitorNative } from './platform'
 import { parseYoutubeVideoId, resolveWorkYoutubeId } from './youtubeLink'
 
 async function beforeAdminWrite(): Promise<void> {
   await ensureFirebaseWebSession()
 }
 
-/** Firestore에 예전 데모(5작품 등)만 있을 때 앱 번들 11작품으로 대체 */
-function isBundledCatalogComplete(works: PortfolioWork[]): boolean {
-  const bundled = portfolio.works
-  if (works.length < bundled.length) return false
-  const ids = new Set(works.map((w) => w.id))
-  return bundled.every((b) => ids.has(b.id))
+/** Firestore에 없는 작품만 번들로 채움 — 클라우드에 있는 설명·제목은 유지 */
+function mergeCloudWithBundledDefaults(cloud: PortfolioWork[]): PortfolioWork[] {
+  const byId = new Map(cloud.map((w) => [w.id, w]))
+  return portfolio.works.map((b) => byId.get(b.id) ?? b)
 }
 
 function wrapWriteError(err: unknown): Error {
@@ -231,7 +230,7 @@ export async function fetchPortfolioWorks(): Promise<{
 
 }> {
 
-  const deviceWorks = loadLocalPortfolioWorks()
+  const deviceWorks = isCapacitorNative() ? loadLocalPortfolioWorks() : null
   if (deviceWorks && deviceWorks.length > 0) {
     const patched = patchLocalWorksFromBundle(deviceWorks)
     return { works: patched, source: 'local' }
@@ -250,10 +249,8 @@ export async function fetchPortfolioWorks(): Promise<{
       return { works: portfolio.works, source: 'local' }
     }
     const works = snap.docs.map((d) => docToWork(d.id, d.data()))
-    if (!isBundledCatalogComplete(works)) {
-      return { works: portfolio.works, source: 'local' }
-    }
-    return { works: patchLocalWorksFromBundle(works), source: 'firestore' }
+    const merged = mergeCloudWithBundledDefaults(works)
+    return { works: patchLocalWorksFromBundle(merged), source: 'firestore' }
   } catch (err) {
     console.warn('Firestore 작품 로드 실패, 로컬 폴백 사용', err)
     return { works: portfolio.works, source: 'local' }
