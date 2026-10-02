@@ -34,7 +34,6 @@ function App() {
   const logoBootstrap = useOwnerLogoBootstrap(() => navigate('/admin'))
   const { works, loading } = usePortfolioWorks()
   const [activeWorkId, setActiveWorkId] = useState<string | null>(null)
-  const [slideIndex, setSlideIndex] = useState(0)
 
   const activeWork = useMemo(() => {
     if (!activeWorkId) return null
@@ -60,8 +59,6 @@ function App() {
     if (email) links.push({ label: 'E-mail', href: `mailto:${email}` })
     return links
   }, [email])
-
-  const maxIndex = Math.max(0, works.length - 3)
 
   const quoteReady = soomgoLink.length > 0
   const quoteBtnClass =
@@ -121,7 +118,7 @@ function App() {
   function WorkCard({ work }: { work: PortfolioWork }) {
     return (
       <button type="button" onClick={() => setActiveWorkId(work.id)}
-        className="group relative w-full flex-shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left backdrop-blur transition hover:border-white/20 hover:bg-white/10 sm:w-1/2 lg:w-[calc(33.333%-10px)]">
+        className="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left backdrop-blur transition hover:border-white/20 hover:bg-white/10">
         <div className="aspect-video w-full overflow-hidden bg-zinc-950 transition duration-300 group-hover:scale-[1.02]">
           <WorkThumbnail work={work}/>
         </div>
@@ -244,31 +241,15 @@ function App() {
               <h2 className="text-xl font-semibold tracking-tight">작품</h2>
               <p className="mt-1 text-sm text-white/60">카드를 클릭하면 상세하게 볼 수 있습니다.</p>
             </div>
-            <div className="hidden sm:flex items-center gap-2">
-              <span className="text-sm text-white/60">{works.length}개</span>
-              <button onClick={() => setSlideIndex(Math.max(0, slideIndex - 1))}
-                disabled={slideIndex === 0}
-                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10 disabled:opacity-30">←</button>
-              <button onClick={() => setSlideIndex(Math.min(maxIndex, slideIndex + 1))}
-                disabled={slideIndex === maxIndex}
-                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10 disabled:opacity-30">→</button>
-            </div>
+            <span className="text-sm text-white/60">{works.length}개</span>
           </div>
-          <div className="overflow-hidden">
-              <div
-                className="grid grid-cols-1 gap-3 sm:flex sm:gap-4 sm:transition-transform sm:duration-300"
-                style={window.innerWidth < 640 ? undefined : {
-                  transform: `translateX(calc(-${slideIndex} * (100% + 12px)))`,
-                  width: 'fit-content',
-                }}
-              >
-              {loading ? (
-                <p className="text-sm text-white/50">작품 불러오는 중…</p>
-              ) : (
-                works.map((w) => <WorkCard key={w.id} work={w}/>)
-              )}
+          {loading ? (
+            <p className="text-sm text-white/50">작품 불러오는 중…</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {works.map((w) => <WorkCard key={w.id} work={w} />)}
             </div>
-          </div>
+          )}
         </section>
 
         <footer className="mx-auto max-w-6xl px-5 pb-12">

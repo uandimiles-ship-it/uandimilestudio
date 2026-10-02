@@ -4,14 +4,16 @@ import { useFirebaseAuth } from '../hooks/useFirebaseAuth'
 
 import { markAdminEntry } from '../lib/adminEntry'
 
+import { isCapacitorNative } from '../lib/platform'
+
 import { AdminShieldIcon } from './AdminShieldIcon'
 
-/** 관리자(uandimiles@gmail.com)로 로그인한 경우에만 표시 — 비방문자에게 노출 금지 */
+/** 앱에서만 표시 — 웹은 공개 포트폴리오만, 편집은 앱 관리자 */
 export function AdminShield() {
   const navigate = useNavigate()
   const { ready, configured, isAdmin } = useFirebaseAuth()
 
-  if (!configured || !ready || !isAdmin) return null
+  if (!isCapacitorNative() || !configured || !ready || !isAdmin) return null
 
   return (
     <button
