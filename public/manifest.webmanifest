@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "U&I STUDIO",
+  "short_name": "U&I STUDIO",
+  "description": "유앤아이 스튜디오 · 영상 포트폴리오",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#09090b",
+  "theme_color": "#dc2626",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

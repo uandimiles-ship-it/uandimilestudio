@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="U and I Studio">
+  <rect width="512" height="512" rx="108" fill="#09090b"/>
+  <rect x="88" y="88" width="336" height="336" rx="72" fill="#dc2626"/>
+  <text x="256" y="292" text-anchor="middle" fill="#ffffff" font-size="118" font-weight="700" font-family="Segoe UI, system-ui, sans-serif">U&amp;I</text>
+</svg>

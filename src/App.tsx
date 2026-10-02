@@ -1,46 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { AdminShield } from './components/AdminShield'
+import { useOwnerLogoBootstrap } from './components/OwnerBootstrap'
+import { WorkThumbnail } from './components/WorkThumbnail'
 import { portfolio, type PortfolioWork } from './content/portfolio'
-
-function Thumbnail({ id }: { id: string }) {
-  const configs: Record<string, { bg1: string; bg2: string; accent: string; label: string; sub: string }> = {
-    'work-1': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '브랜드 필름', sub: 'BRAND FILM' },
-    'work-2': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '서비스 및 제품소개 - 숏츠 광고', sub: 'SHORT-FORM AD' },
-    'work-3': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '공익 홍보영상', sub: 'PUBLIC SERVICE' },
-    'work-4': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '개인 프로필', sub: 'PROFILE VIDEO' },
-    'work-5': { bg1: '#1a0533', bg2: '#0d0d1a', accent: '#a78bfa', label: '동화제작', sub: 'STORY FILM' },
-  }
-  const c = configs[id] ?? { bg1: '#18181b', bg2: '#18181b', accent: '#ffffff', label: '', sub: '' }
-  return (
-    <svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
-      <defs>
-        <linearGradient id={`g-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={c.bg1}/>
-          <stop offset="100%" stopColor={c.bg2}/>
-        </linearGradient>
-      </defs>
-      <rect width="480" height="300" fill={`url(#g-${id})`}/>
-      <rect x="0" y="0" width="480" height="5" fill={c.accent} opacity="0.5"/>
-      <rect x="0" y="295" width="480" height="5" fill={c.accent} opacity="0.5"/>
-      {[0,40,80,120,160,200,240,280,320,360,400,440].map((x,i) => (
-        <rect key={i} x={x+4} y="8" width="28" height="14" rx="2" fill={c.accent} opacity="0.3"/>
-      ))}
-      <circle cx="240" cy="135" r="44" fill="white" opacity="0.07"/>
-      <circle cx="240" cy="135" r="34" fill="white" opacity="0.05"/>
-      <polygon points="228,118 228,152 264,135" fill={c.accent} opacity="0.9"/>
-      <text x="240" y="205" textAnchor="middle" fill="white" opacity="0.9" fontSize="16" fontWeight="bold" fontFamily="sans-serif">{c.label}</text>
-      <text x="240" y="224" textAnchor="middle" fill={c.accent} opacity="0.8" fontSize="11" fontFamily="sans-serif">{c.sub}</text>
-    </svg>
-  )
-}
+import { usePortfolioWorks } from './hooks/usePortfolioWorks'
 
 function App() {
+  const logoBootstrap = useOwnerLogoBootstrap()
+  const { works, loading } = usePortfolioWorks()
   const [activeWorkId, setActiveWorkId] = useState<string | null>(null)
   const [slideIndex, setSlideIndex] = useState(0)
 
   const activeWork = useMemo(() => {
     if (!activeWorkId) return null
-    return portfolio.works.find((w) => w.id === activeWorkId) ?? null
-  }, [activeWorkId])
+    return works.find((w) => w.id === activeWorkId) ?? null
+  }, [activeWorkId, works])
 
   const closeButtonRef = useRef<HTMLButtonElement | null>(null)
   useEffect(() => { if (!activeWork) return; closeButtonRef.current?.focus() }, [activeWork])
@@ -61,14 +35,14 @@ function App() {
     return links
   }, [email])
 
-  const maxIndex = Math.max(0, portfolio.works.length - 3)
+  const maxIndex = Math.max(0, works.length - 3)
 
   function WorkCard({ work }: { work: PortfolioWork }) {
     return (
       <button type="button" onClick={() => setActiveWorkId(work.id)}
         className="group relative w-full flex-shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left backdrop-blur transition hover:border-white/20 hover:bg-white/10 sm:w-1/2 lg:w-[calc(33.333%-10px)]">
         <div className="aspect-[16/10] w-full overflow-hidden bg-zinc-950 transition duration-300 group-hover:scale-[1.02]">
-          <Thumbnail id={work.id}/>
+          <WorkThumbnail work={work}/>
         </div>
         <div className="p-4">
           <div className="flex items-start justify-between gap-4">
@@ -99,7 +73,12 @@ function App() {
         <div className="mx-auto max-w-6xl px-5 py-8">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-2xl bg-red-600 text-sm font-semibold">U&I</div>
+              <div
+                className="grid h-10 w-10 select-none place-items-center rounded-2xl bg-red-600 text-sm font-semibold touch-none"
+                {...logoBootstrap}
+              >
+                U&I
+              </div>
               <div>
                 <div className="text-sm text-white/60">Video Portfolio</div>
                 <div className="text-base font-semibold">{portfolio.name}</div>
@@ -173,7 +152,7 @@ function App() {
               <p className="mt-1 text-sm text-white/60 whitespace-nowrap">카드를 클릭하면 상세하게 볼 수 있어요.</p>
             </div>
             <div className="hidden sm:flex items-center gap-2">
-              <span className="text-sm text-white/60">{portfolio.works.length}개</span>
+              <span className="text-sm text-white/60">{works.length}개</span>
               <button onClick={() => setSlideIndex(Math.max(0, slideIndex - 1))}
                 disabled={slideIndex === 0}
                 className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10 disabled:opacity-30">←</button>
@@ -190,7 +169,11 @@ function App() {
                   width: 'fit-content',
                 }}
               >
-              {portfolio.works.map((w) => <WorkCard key={w.id} work={w}/>)}
+              {loading ? (
+                <p className="text-sm text-white/50">작품 불러오는 중…</p>
+              ) : (
+                works.map((w) => <WorkCard key={w.id} work={w}/>)
+              )}
             </div>
           </div>
         </section>
@@ -328,6 +311,8 @@ function App() {
           </div>
         )
       ) : null}
+
+      <AdminShield />
     </div>
   )
 }
