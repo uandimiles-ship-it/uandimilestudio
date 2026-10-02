@@ -103,11 +103,7 @@ function needsWorkPatch(
 
 
   if (id === 'work-2') {
-    return (
-      stale.embed?.id === 'ogRnN_z5wSQ' ||
-      stale.title.includes('NOW Music') ||
-      !(stale.thumbnail.src ?? '').includes('work-2-uandi-studio')
-    )
+    return stale.embed?.id === 'ogRnN_z5wSQ' || stale.title.includes('NOW Music')
   }
 
 
@@ -134,7 +130,16 @@ function needsWorkPatch(
 
 
 
-export function patchLocalWorksFromBundle(works: PortfolioWork[]): PortfolioWork[] {
+export type PatchLocalWorksOptions = {
+  /** false면 메모리만 패치 (웹 Firestore 로드 — localStorage·이벤트 없음) */
+  persistToDevice?: boolean
+}
+
+export function patchLocalWorksFromBundle(
+  works: PortfolioWork[],
+  options?: PatchLocalWorksOptions,
+): PortfolioWork[] {
+  const persistToDevice = options?.persistToDevice ?? true
 
   const rev = Number.parseInt(localStorage.getItem(REV_KEY) ?? '0', 10)
 
@@ -171,6 +176,12 @@ export function patchLocalWorksFromBundle(works: PortfolioWork[]): PortfolioWork
       subtitle: stale?.subtitle?.trim() ? stale.subtitle : bundled.subtitle,
       year: stale?.year ?? bundled.year,
       thumbnailLayout: stale?.thumbnailLayout ?? bundled.thumbnailLayout,
+      thumbnail:
+        stale?.thumbnail?.src?.trim() &&
+        !stale.thumbnail.src.startsWith('blob:') &&
+        !stale.thumbnail.src.includes('data:image')
+          ? stale.thumbnail
+          : bundled.thumbnail,
     }
 
     const idx = patched.findIndex((w) => w.id === id)
@@ -186,11 +197,10 @@ export function patchLocalWorksFromBundle(works: PortfolioWork[]): PortfolioWork
 
 
   if (anyPatch || needsRev) {
-
     localStorage.setItem(REV_KEY, String(WORKS_BUNDLE_REVISION))
-
-    saveLocalPortfolioWorks(patched)
-
+    if (persistToDevice) {
+      saveLocalPortfolioWorks(patched)
+    }
   }
 
 

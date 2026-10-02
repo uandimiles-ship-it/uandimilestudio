@@ -11,21 +11,21 @@ export function usePortfolioWorks() {
 
   useEffect(() => {
     let cancelled = false
-    async function load() {
-      setLoading(true)
+    async function load(showSpinner = true) {
+      if (showSpinner) setLoading(true)
       const result = await fetchPortfolioWorks()
       if (cancelled) return
       setWorks(result.works)
       setSource(result.source)
       setLoading(false)
     }
-    void load()
+    void load(true)
     function onUpdated() {
-      void load()
+      void load(false)
     }
     window.addEventListener(PORTFOLIO_WORKS_UPDATED_EVENT, onUpdated)
     function onFocus() {
-      if (!isCapacitorNative()) void load()
+      if (!isCapacitorNative()) void load(false)
     }
     window.addEventListener('focus', onFocus)
     return () => {

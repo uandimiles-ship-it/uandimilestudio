@@ -250,7 +250,10 @@ export async function fetchPortfolioWorks(): Promise<{
     }
     const works = snap.docs.map((d) => docToWork(d.id, d.data()))
     const merged = mergeCloudWithBundledDefaults(works)
-    return { works: patchLocalWorksFromBundle(merged), source: 'firestore' }
+    return {
+      works: patchLocalWorksFromBundle(merged, { persistToDevice: false }),
+      source: 'firestore',
+    }
   } catch (err) {
     console.warn('Firestore 작품 로드 실패, 로컬 폴백 사용', err)
     return { works: portfolio.works, source: 'local' }
