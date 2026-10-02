@@ -120,10 +120,10 @@ function App() {
       <button
         type="button"
         onClick={() => setActiveWorkId(work.id)}
-        className="group flex h-full w-full min-w-0 flex-col rounded-2xl p-2 text-left outline-none transition-colors duration-150 hover:bg-white/[0.07] focus-visible:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+        className="group flex h-full w-full min-w-0 flex-col rounded-2xl p-2 text-left outline-none transition-colors duration-150 hover:bg-white/[0.14] focus-visible:bg-white/[0.14] focus-visible:ring-2 focus-visible:ring-white/35 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
       >
         <div
-          className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-inset ring-white/10 transition-[box-shadow,background-color] duration-150 group-hover:ring-white/30 group-hover:bg-zinc-900"
+          className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-inset ring-white/10 transition-[box-shadow,background-color] duration-150 group-hover:ring-white/45 group-hover:bg-zinc-800"
         >
           <WorkThumbnail work={work}/>
         </div>
