@@ -4,6 +4,7 @@ export type PortfolioLink = {
 }
 
 import type { ThumbnailLayout } from '../lib/thumbnailLayout'
+import { PUBLIC_SITE_URL } from '../lib/siteUrl'
 
 export type PortfolioWork = {
   id: string
@@ -38,6 +39,8 @@ export type PortfolioProfile = {
     email?: string
     youtube?: string
     facebook?: string
+    threads?: string
+    website?: string
     kakao?: string
     /** 숨고 프로필·견적 페이지 URL (등록 후 입력) */
     soomgo?: string
@@ -61,8 +64,10 @@ export const portfolio: PortfolioProfile = {
     youtube:
       'https://www.youtube.com/@%EA%B9%80%EC%A7%80%EA%B8%88.%EC%9D%B4%EC%88%9C%EA%B0%84/videos',
     facebook: 'https://www.facebook.com/UANDIMILES',
+    threads: 'https://www.threads.com/@uandimiles',
+    website: `${PUBLIC_SITE_URL}/`,
     kakao: 'https://pf.kakao.com/_QxnCzX/chat',
-    soomgo: '',
+    soomgo: 'https://soomgo.com/profile/users/19272777',
   },
   works: [
     {
@@ -201,8 +206,8 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['애니', '주인공', '숏폼', '팬메이드'],
       thumbnail: {
-        src: '/thumbnails/work-9-youtube.jpg',
-        alt: '애니 주인공 촬영 현장 숏폼',
+        src: '/thumbnails/work-9-fan-anime-collage.jpg?v=13',
+        alt: '팬메이드 애니 주인공 촬영현장',
       },
       embed: { type: 'youtube', id: 'Q3EurcPRJXU' },
       link: 'https://youtube.com/shorts/Q3EurcPRJXU',
