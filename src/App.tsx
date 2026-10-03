@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AdminShield } from './components/AdminShield'
 import { useOwnerLogoBootstrap } from './components/OwnerBootstrap'
 import { WorkThumbnail } from './components/WorkThumbnail'
 import { portfolio, type PortfolioWork } from './content/portfolio'
 import { resolveWorkYoutubeId } from './lib/youtubeLink'
+import { useNativeBackButton } from './hooks/useNativeBackButton'
 import { usePortfolioWorks } from './hooks/usePortfolioWorks'
-
 function WorkYoutubeEmbed({ work }: { work: PortfolioWork }) {
   const id = resolveWorkYoutubeId(work)
   if (!id) {
@@ -48,6 +48,9 @@ function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
+  const closeActiveWork = useCallback(() => setActiveWorkId(null), [])
+  useNativeBackButton(closeActiveWork, Boolean(activeWork))
+
   const kakaoLink = portfolio.contact.kakao ?? 'http://pf.kakao.com/_QxnCzX'
   const soomgoLink = portfolio.contact.soomgo?.trim() ?? ''
   const email = portfolio.contact.email
@@ -61,6 +64,7 @@ function App() {
   }, [email])
 
   const quoteReady = soomgoLink.length > 0
+  const studioInquiryHref = quoteReady ? soomgoLink : kakaoLink
   const quoteBtnClass =
     'rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-zinc-950 hover:bg-white/90'
   const kakaoBtnClass =
@@ -108,7 +112,7 @@ function App() {
             YouTube에서 보기
           </a>
         ) : null}
-        <a href={kakaoLink} target="_blank" rel="noreferrer" className={linkClass}>
+        <a href={studioInquiryHref} target="_blank" rel="noreferrer" className={linkClass}>
           유앤아이 스튜디오 문의
         </a>
       </div>
@@ -120,12 +124,16 @@ function App() {
       <button
         type="button"
         onClick={() => setActiveWorkId(work.id)}
-        className="group flex h-full w-full min-w-0 flex-col rounded-2xl p-2 text-left outline-none transition-colors duration-150 hover:bg-white/[0.14] focus-visible:bg-white/[0.14] focus-visible:ring-2 focus-visible:ring-white/35 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+        className="portfolio-work-card group flex h-full w-full min-w-0 flex-col rounded-2xl p-2 text-left outline-none ring-1 ring-inset ring-white/10 transition-[background-color,box-shadow] duration-150 hover:bg-white/[0.14] hover:ring-white/28 active:bg-white/[0.14] active:ring-white/32 focus-visible:bg-white/[0.14] focus-visible:ring-2 focus-visible:ring-white/35 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
       >
         <div
-          className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-inset ring-white/10 transition-[box-shadow,background-color] duration-150 group-hover:ring-white/45 group-hover:bg-zinc-800"
+          className="portfolio-work-card-thumb relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-inset ring-white/10 transition-[box-shadow,background-color] duration-150 group-hover:ring-white/45 group-hover:bg-zinc-800 group-active:ring-white/45 group-active:bg-zinc-800"
         >
-          <WorkThumbnail work={work}/>
+          <WorkThumbnail work={work} />
+          <div
+            className="pointer-events-none absolute inset-0 z-10 bg-white/0 transition-colors duration-150 group-hover:bg-white/[0.12] group-active:bg-white/[0.12]"
+            aria-hidden
+          />
         </div>
         <div className="px-1 pb-1 pt-3">
           <div className="flex items-start justify-between gap-4">
