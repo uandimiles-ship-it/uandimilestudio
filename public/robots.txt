@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://uandimilestudio-828.netlify.app/sitemap.xml
