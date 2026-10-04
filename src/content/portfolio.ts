@@ -42,8 +42,10 @@ export type PortfolioProfile = {
     threads?: string
     website?: string
     kakao?: string
-    /** 숨고 프로필·견적 페이지 URL (등록 후 입력) */
+    /** 숨고 프로필·견적 요청 URL */
     soomgo?: string
+    /** 크몽 서비스·전문가 페이지 URL (승인 후 입력 → 견적보기) */
+    kmong?: string
   }
   works: PortfolioWork[]
 }
@@ -68,6 +70,8 @@ export const portfolio: PortfolioProfile = {
     website: `${PUBLIC_SITE_URL}/`,
     kakao: 'https://pf.kakao.com/_QxnCzX/chat',
     soomgo: 'https://soomgo.com/profile/users/19272777',
+    // 승인 후 내 서비스 공유 링크로 교체 (예: https://kmong.com/gig/...)
+    kmong: '',
   },
   works: [
     {

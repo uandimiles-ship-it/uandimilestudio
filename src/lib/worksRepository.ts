@@ -38,7 +38,7 @@ import { getFirebaseDb, getFirebaseStorage, isFirebaseConfigured } from './fireb
 import { ensureFirebaseWebSession, formatFirebaseWriteError } from './firebaseSession'
 import { patchLocalWorksFromBundle } from './bundleWorksPatch'
 import { loadLocalPortfolioWorks, saveLocalPortfolioWorks } from './localPortfolioStore'
-import { sanitizeWorkThumbnail } from './thumbnailResolve'
+import { normalizeThumbnailSrcForPlatform, sanitizeWorkThumbnail } from './thumbnailResolve'
 import { isCapacitorNative } from './platform'
 import { parseYoutubeVideoId, resolveWorkYoutubeId } from './youtubeLink'
 
@@ -46,10 +46,47 @@ async function beforeAdminWrite(): Promise<void> {
   await ensureFirebaseWebSession()
 }
 
+function applyNativeThumbnailFixes(works: PortfolioWork[]): PortfolioWork[] {
+  if (!isCapacitorNative()) return works
+  const bundled9 = portfolio.works.find((w) => w.id === 'work-9')
+  if (!bundled9) return works
+  const bundledSrc = normalizeThumbnailSrcForPlatform(bundled9.thumbnail.src)
+  return works.map((w) => {
+    if (w.id !== 'work-9') return w
+    return {
+      ...w,
+      thumbnail: { ...bundled9.thumbnail, src: bundledSrc, alt: w.thumbnail.alt || bundled9.thumbnail.alt },
+    }
+  })
+}
+
+function shouldApplyBundledThumbnail(cloud: PortfolioWork, bundled: PortfolioWork): boolean {
+  const bundledSrc = bundled.thumbnail.src?.trim() ?? ''
+  if (!bundledSrc.startsWith('/thumbnails/')) return false
+  const cloudSrc = cloud.thumbnail.src?.trim() ?? ''
+  if (!cloudSrc) return true
+  const cloudBase = cloudSrc.split('?')[0]
+  const bundledBase = bundledSrc.split('?')[0]
+  if (cloudBase === bundledBase) return false
+  if (cloudSrc.includes('ytimg.com') || cloudSrc.includes('img.youtube.com')) return true
+  if (cloud.id === 'work-9') {
+    return !cloudSrc.includes('work-9-fan-anime-collage')
+  }
+  return false
+}
+
 /** Firestore에 없는 작품만 번들로 채움 — 클라우드에 있는 설명·제목은 유지 */
 function mergeCloudWithBundledDefaults(cloud: PortfolioWork[]): PortfolioWork[] {
   const byId = new Map(cloud.map((w) => [w.id, w]))
-  return portfolio.works.map((b) => byId.get(b.id) ?? b)
+  return portfolio.works.map((b) => {
+    const fromCloud = byId.get(b.id)
+    if (!fromCloud) return b
+    if (fromCloud.id === 'work-9') {
+      return { ...fromCloud, thumbnail: b.thumbnail }
+    }
+    const thumbnail = shouldApplyBundledThumbnail(fromCloud, b) ? b.thumbnail : fromCloud.thumbnail
+    return { ...fromCloud, thumbnail }
+  })
 }
 
 function wrapWriteError(err: unknown): Error {
@@ -232,12 +269,15 @@ export async function fetchPortfolioWorks(): Promise<{
 
   const deviceWorks = isCapacitorNative() ? loadLocalPortfolioWorks() : null
   if (deviceWorks && deviceWorks.length > 0) {
-    const patched = patchLocalWorksFromBundle(deviceWorks)
+    const patched = applyNativeThumbnailFixes(patchLocalWorksFromBundle(deviceWorks))
+    saveLocalPortfolioWorks(patched)
     return { works: patched, source: 'local' }
   }
 
   if (!isFirebaseConfigured()) {
-    return { works: portfolio.works, source: 'local' }
+    const works = applyNativeThumbnailFixes(portfolio.works)
+    if (isCapacitorNative()) saveLocalPortfolioWorks(works)
+    return { works, source: 'local' }
   }
 
   try {
@@ -246,17 +286,24 @@ export async function fetchPortfolioWorks(): Promise<{
       query(collection(db, PORTFOLIO_WORKS_COLLECTION), orderBy('sortOrder', 'asc')),
     )
     if (snap.empty) {
-      return { works: portfolio.works, source: 'local' }
+      const works = applyNativeThumbnailFixes(portfolio.works)
+      if (isCapacitorNative()) saveLocalPortfolioWorks(works)
+      return { works, source: 'local' }
     }
-    const works = snap.docs.map((d) => docToWork(d.id, d.data()))
-    const merged = mergeCloudWithBundledDefaults(works)
-    return {
-      works: patchLocalWorksFromBundle(merged, { persistToDevice: false }),
-      source: 'firestore',
+    const cloudWorks = snap.docs.map((d) => docToWork(d.id, d.data()))
+    const merged = mergeCloudWithBundledDefaults(cloudWorks)
+    const works = applyNativeThumbnailFixes(
+      patchLocalWorksFromBundle(merged, { persistToDevice: false }),
+    )
+    if (isCapacitorNative()) {
+      saveLocalPortfolioWorks(works)
     }
+    return { works, source: 'firestore' }
   } catch (err) {
     console.warn('Firestore 작품 로드 실패, 로컬 폴백 사용', err)
-    return { works: portfolio.works, source: 'local' }
+    const works = applyNativeThumbnailFixes(portfolio.works)
+    if (isCapacitorNative()) saveLocalPortfolioWorks(works)
+    return { works, source: 'local' }
   }
 
 }

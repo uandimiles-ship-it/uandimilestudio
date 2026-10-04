@@ -8,3 +8,46 @@ body {
 body {
   margin: 0;
 }
+
+body.capacitor-native {
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    max(1.25rem, env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0px);
+}
+
+/* 앱: 웹 호버와 비슷한 카드·썸네일 테두리 (기본 노출 + 터치 시 강조) */
+body.capacitor-native .portfolio-work-card {
+  background-color: rgb(255 255 255 / 0.06);
+  --tw-ring-color: rgb(255 255 255 / 0.24);
+}
+
+body.capacitor-native .portfolio-work-card-thumb {
+  --tw-ring-color: rgb(255 255 255 / 0.38);
+}
+
+body.capacitor-native .portfolio-work-card:active {
+  background-color: rgb(255 255 255 / 0.14);
+  --tw-ring-color: rgb(255 255 255 / 0.34);
+}
+
+body.capacitor-native .portfolio-work-card:active .portfolio-work-card-thumb {
+  --tw-ring-color: rgb(255 255 255 / 0.48);
+}
+
+/* Netlify가 무료 플랜 사이트에 주입하는 배지 — NOW AI 버튼으로 대체 */
+#nl-badge-frame {
+  display: none !important;
+}
+
+.now-ai-fab {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  z-index: 2147483647;
+}
+
+/* 앱에서는 오른쪽 아래가 관리자 방패 자리 */
+body.capacitor-native .now-ai-fab {
+  left: max(12px, env(safe-area-inset-left, 0px));
+  right: auto;
+  bottom: calc(max(1.25rem, env(safe-area-inset-bottom, 0px)) + 0.5rem);
+}

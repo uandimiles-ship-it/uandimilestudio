@@ -7,6 +7,8 @@ import { portfolio, type PortfolioWork } from './content/portfolio'
 import { resolveWorkYoutubeId } from './lib/youtubeLink'
 import { useNativeBackButton } from './hooks/useNativeBackButton'
 import { usePortfolioWorks } from './hooks/usePortfolioWorks'
+const NOW_AI_URL = 'https://play.google.com/store/apps/details?id=com.uandimiles.nowai'
+
 function WorkYoutubeEmbed({ work }: { work: PortfolioWork }) {
   const id = resolveWorkYoutubeId(work)
   if (!id) {
@@ -53,6 +55,7 @@ function App() {
 
   const kakaoLink = portfolio.contact.kakao ?? 'http://pf.kakao.com/_QxnCzX'
   const soomgoLink = portfolio.contact.soomgo?.trim() ?? ''
+  const kmongLink = portfolio.contact.kmong?.trim() ?? ''
   const email = portfolio.contact.email
 
   const navLinks = useMemo(() => {
@@ -63,8 +66,9 @@ function App() {
     return links
   }, [email])
 
-  const quoteReady = soomgoLink.length > 0
-  const studioInquiryHref = quoteReady ? soomgoLink : kakaoLink
+  const quoteHref = kmongLink || soomgoLink
+  const quoteReady = quoteHref.length > 0
+  const studioInquiryHref = soomgoLink || kakaoLink
   const quoteBtnClass =
     'rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-zinc-950 hover:bg-white/90'
   const kakaoBtnClass =
@@ -74,7 +78,7 @@ function App() {
     if (quoteReady) {
       return (
         <a
-          href={soomgoLink}
+          href={quoteHref}
           target="_blank"
           rel="noreferrer"
           className={`${quoteBtnClass} ${className}`}
@@ -86,7 +90,7 @@ function App() {
     return (
       <span
         className={`${quoteBtnClass} cursor-default opacity-80 ${className}`}
-        title="숨고 링크 연결 예정"
+        title="견적 링크 연결 예정"
       >
         견적보기
       </span>
@@ -265,7 +269,7 @@ function App() {
           )}
         </section>
 
-        <footer className="mx-auto max-w-6xl px-5 pb-12">
+        <footer className="mx-auto max-w-6xl px-5 pb-24">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -378,6 +382,20 @@ function App() {
           </div>
         )
       ) : null}
+
+      <a
+        href={NOW_AI_URL}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="NOW AI · NOW WORLD"
+        className="now-ai-fab flex items-center gap-2.5 rounded-2xl border border-white/15 bg-zinc-900/90 py-2 pl-2 pr-4 shadow-lg shadow-black/40 backdrop-blur transition hover:border-violet-300/40 hover:bg-zinc-800/90"
+      >
+        <img src="/brand/now-ai-icon.png" alt="" width={34} height={34} className="h-[34px] w-[34px] rounded-[10px]" draggable={false} />
+        <span className="flex flex-col leading-tight">
+          <span className="text-[10px] tracking-[0.18em] text-white/55">NOW WORLD</span>
+          <span className="bg-gradient-to-r from-violet-300 to-sky-300 bg-clip-text text-sm font-bold text-transparent">NOW AI</span>
+        </span>
+      </a>
 
       <AdminShield />
     </div>

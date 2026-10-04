@@ -8,6 +8,10 @@ import { isCapacitorNative } from './lib/platform'
 
 const Router = isCapacitorNative() ? HashRouter : BrowserRouter
 
+if (isCapacitorNative()) {
+  document.body.classList.add('capacitor-native')
+}
+
 if (import.meta.env.PROD && 'serviceWorker' in navigator && !isCapacitorNative()) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {})

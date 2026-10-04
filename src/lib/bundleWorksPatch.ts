@@ -6,7 +6,7 @@ import { loadLocalPortfolioWorks, saveLocalPortfolioWorks } from './localPortfol
 
 /** 앱 업데이트 시 기기 localStorage 작품 메타를 기본값으로 맞춤 (증가 시 1회 패치) */
 
-export const WORKS_BUNDLE_REVISION = 8
+export const WORKS_BUNDLE_REVISION = 13
 
 const REV_KEY = 'uandimilestudio_works_bundle_rev'
 
@@ -122,10 +122,43 @@ function needsWorkPatch(
 
   }
 
-
+  if (id === 'work-9' && stale) {
+    const src = stale.thumbnail.src ?? ''
+    const bundledSrc = bundled.thumbnail.src ?? ''
+    return (
+      src.includes('work-9-youtube') ||
+      src.includes('ytimg.com') ||
+      !src.includes('work-9-fan-anime-collage') ||
+      thumbnailPathBase(src) !== thumbnailPathBase(bundledSrc) ||
+      src.includes('?')
+    )
+  }
 
   return false
 
+}
+
+
+
+function thumbnailPathBase(src: string): string {
+  return src.split('?')[0].trim()
+}
+
+
+
+function resolvePatchedThumbnail(
+  stale: PortfolioWork | undefined,
+  bundled: PortfolioWork,
+): PortfolioWork['thumbnail'] {
+  const bundledSrc = bundled.thumbnail.src?.trim() ?? ''
+  const staleSrc = stale?.thumbnail?.src?.trim() ?? ''
+  if (!staleSrc || staleSrc.startsWith('blob:') || staleSrc.includes('data:image')) {
+    return bundled.thumbnail
+  }
+  if (bundledSrc && thumbnailPathBase(staleSrc) !== thumbnailPathBase(bundledSrc)) {
+    return bundled.thumbnail
+  }
+  return stale?.thumbnail ?? bundled.thumbnail
 }
 
 
@@ -176,12 +209,7 @@ export function patchLocalWorksFromBundle(
       subtitle: stale?.subtitle?.trim() ? stale.subtitle : bundled.subtitle,
       year: stale?.year ?? bundled.year,
       thumbnailLayout: stale?.thumbnailLayout ?? bundled.thumbnailLayout,
-      thumbnail:
-        stale?.thumbnail?.src?.trim() &&
-        !stale.thumbnail.src.startsWith('blob:') &&
-        !stale.thumbnail.src.includes('data:image')
-          ? stale.thumbnail
-          : bundled.thumbnail,
+      thumbnail: resolvePatchedThumbnail(stale, bundled),
     }
 
     const idx = patched.findIndex((w) => w.id === id)
