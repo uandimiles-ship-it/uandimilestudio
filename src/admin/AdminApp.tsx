@@ -7,8 +7,7 @@ import { NowAiAdminTile } from '../components/nowAi/NowAiAdminTile'
 import { NowAiVideoCard } from '../components/nowAi/NowAiVideoCard'
 import { useFirebaseAuth } from '../hooks/useFirebaseAuth'
 import { consumeAdminEntry } from '../lib/adminEntry'
-import { verifyAdminAccess } from '../lib/adminOperators'
-import { OperatorEmailsPanel } from '../components/OperatorEmailsPanel'
+import { isEditorEmail } from '../lib/adminEmails'
 import { getFirebaseAuth } from '../lib/firebase'
 import { ensureFirebaseWebSession } from '../lib/firebaseSession'
 import { signInWithGoogle } from '../lib/googleSignIn'
@@ -69,7 +68,7 @@ function applyWorks(next: PortfolioWork[]) {
 
 export default function AdminApp() {
   const navigate = useNavigate()
-  const { user, ready, configured, isOwner } = useFirebaseAuth()
+  const { user, ready, configured } = useFirebaseAuth()
   const [authTried, setAuthTried] = useState(false)
   const [accessOk, setAccessOk] = useState(false)
   const [accessChecking, setAccessChecking] = useState(false)
@@ -103,19 +102,12 @@ export default function AdminApp() {
       setAccessChecking(false)
       return
     }
-    let cancelled = false
-    setAccessChecking(true)
-    void verifyAdminAccess(user.email).then((ok) => {
-      if (cancelled) return
-      setAccessOk(ok)
-      setAccessChecking(false)
-      if (!ok) {
-        void signOut(getFirebaseAuth())
-        navigate('/', { replace: true })
-      }
-    })
-    return () => {
-      cancelled = true
+    const ok = isEditorEmail(user.email)
+    setAccessOk(ok)
+    setAccessChecking(false)
+    if (!ok) {
+      void signOut(getFirebaseAuth())
+      navigate('/', { replace: true })
     }
   }, [configured, ready, user, navigate])
 
@@ -375,7 +367,6 @@ export default function AdminApp() {
               onClick={() => setView('works')}
             />
           </div>
-          {isOwner ? <OperatorEmailsPanel /> : null}
           <button
             type="button"
             onClick={() => navigate('/')}

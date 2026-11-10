@@ -3,16 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { useFirebaseAuth } from '../hooks/useFirebaseAuth'
 
 import { markAdminEntry } from '../lib/adminEntry'
-import { isCapacitorNative } from '../lib/platform'
 
 import { AdminShieldIcon } from './AdminShieldIcon'
 
-/** 앱 전용 — OWNER_ADMIN_EMAIL 로그인 시에만 표시 (웹에는 방패 없음) */
+/** 웹·앱 공통 — uandimiles@gmail.com 로그인 시에만 표시 */
 export function AdminShield() {
   const navigate = useNavigate()
   const { ready, configured, isAdmin } = useFirebaseAuth()
 
-  if (!isCapacitorNative() || !configured || !ready || !isAdmin) return null
+  if (!configured || !ready || !isAdmin) return null
 
   return (
     <button
