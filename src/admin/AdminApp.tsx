@@ -7,6 +7,8 @@ import { NowAiAdminTile } from '../components/nowAi/NowAiAdminTile'
 import { NowAiVideoCard } from '../components/nowAi/NowAiVideoCard'
 import { useFirebaseAuth } from '../hooks/useFirebaseAuth'
 import { consumeAdminEntry } from '../lib/adminEntry'
+import { verifyAdminAccess } from '../lib/adminOperators'
+import { OperatorEmailsPanel } from '../components/OperatorEmailsPanel'
 import { getFirebaseAuth } from '../lib/firebase'
 import { ensureFirebaseWebSession } from '../lib/firebaseSession'
 import { signInWithGoogle } from '../lib/googleSignIn'
@@ -67,8 +69,10 @@ function applyWorks(next: PortfolioWork[]) {
 
 export default function AdminApp() {
   const navigate = useNavigate()
-  const { user, ready, configured, isAdmin } = useFirebaseAuth()
+  const { user, ready, configured, isOwner } = useFirebaseAuth()
   const [authTried, setAuthTried] = useState(false)
+  const [accessOk, setAccessOk] = useState(false)
+  const [accessChecking, setAccessChecking] = useState(false)
   const [view, setView] = useState<AdminView>('dashboard')
   const [works, setWorks] = useState<PortfolioWork[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -81,6 +85,7 @@ export default function AdminApp() {
   useEffect(() => {
     if (!configured || !ready) return
     if (user) return
+    setAccessOk(false)
     if (!consumeAdminEntry()) {
       navigate('/', { replace: true })
       return
@@ -94,7 +99,28 @@ export default function AdminApp() {
   }, [configured, ready, user, authTried, navigate])
 
   useEffect(() => {
-    if (!configured || !isAdmin) return
+    if (!configured || !ready || !user) {
+      setAccessChecking(false)
+      return
+    }
+    let cancelled = false
+    setAccessChecking(true)
+    void verifyAdminAccess(user.email).then((ok) => {
+      if (cancelled) return
+      setAccessOk(ok)
+      setAccessChecking(false)
+      if (!ok) {
+        void signOut(getFirebaseAuth())
+        navigate('/', { replace: true })
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [configured, ready, user, navigate])
+
+  useEffect(() => {
+    if (!configured || !accessOk) return
     void (async () => {
       const { works: loaded } = await fetchPortfolioWorks()
       setWorks(loaded)
@@ -109,7 +135,7 @@ export default function AdminApp() {
         })
       }
     })()
-  }, [configured, isAdmin])
+  }, [configured, accessOk])
 
   useEffect(() => {
     setDeleteArmed(false)
@@ -313,7 +339,7 @@ export default function AdminApp() {
     return null
   }
 
-  if (!ready || (!user && authTried)) {
+  if (!ready || accessChecking || (!user && authTried)) {
     return (
       <div className="grid min-h-dvh place-items-center bg-slate-50 text-slate-500">잠시만요…</div>
     )
@@ -325,10 +351,10 @@ export default function AdminApp() {
     )
   }
 
-  if (!isAdmin) {
-    void signOut(getFirebaseAuth())
-    navigate('/', { replace: true })
-    return null
+  if (!accessOk) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-slate-50 text-slate-500">잠시만요…</div>
+    )
   }
 
   if (view === 'dashboard') {
@@ -349,6 +375,7 @@ export default function AdminApp() {
               onClick={() => setView('works')}
             />
           </div>
+          {isOwner ? <OperatorEmailsPanel /> : null}
           <button
             type="button"
             onClick={() => navigate('/')}

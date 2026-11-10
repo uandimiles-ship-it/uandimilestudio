@@ -1,5 +1,5 @@
 /* U&I STUDIO — minimal PWA service worker (install + offline shell) */
-const CACHE = 'uandimilestudio-v2'
+const CACHE = 'uandimilestudio-v3'
 const PRECACHE = [
   '/',
   '/index.html',

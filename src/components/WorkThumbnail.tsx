@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { isCapacitorNative } from '../lib/platform'
 
 import type { PortfolioWork } from '../content/portfolio'
 
@@ -18,11 +19,11 @@ const placeholderConfigs: Record<
 
 > = {
 
-  'work-1': { bg1: '#ffffff', bg2: '#f4f4f5', accent: '#111111', label: 'U&I', sub: 'STUDIO' },
+  'work-1': { bg1: '#18181b', bg2: '#27272a', accent: '#f472b6', label: 'U&I', sub: 'STUDIO' },
 
-  'work-2': { bg1: '#ffffff', bg2: '#f4f4f5', accent: '#111111', label: 'U&I', sub: 'BRAND ADS' },
+  'work-2': { bg1: '#18181b', bg2: '#27272a', accent: '#38bdf8', label: 'U&I', sub: 'BRAND ADS' },
 
-  'work-3': { bg1: '#ffffff', bg2: '#f4f4f5', accent: '#111111', label: 'U&I', sub: 'EVENT' },
+  'work-3': { bg1: '#18181b', bg2: '#27272a', accent: '#111111', label: 'U&I', sub: 'EVENT' },
 
   'work-4': { bg1: '#18181b', bg2: '#27272a', accent: '#f472b6', label: 'NOW', sub: 'MUSIC' },
 
@@ -142,48 +143,39 @@ function PlaceholderSvg({ id, title }: { id: string; title: string }) {
 
 
 
-export function WorkThumbnail({ work }: { work: PortfolioWork }) {
-
+export function WorkThumbnail({
+  work,
+  priority = false,
+}: {
+  work: PortfolioWork
+  priority?: boolean
+}) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
 
   const primary = resolveWorkThumbnailSrc(work)
-
   const ytFallback = youtubeThumbnailUrl(work)
 
-
+  useEffect(() => {
+    setFailedSrc(null)
+  }, [primary, work.id])
 
   let src = primary
-
   if (src && failedSrc === src) {
-
     src = ytFallback && failedSrc !== ytFallback ? ytFallback : null
-
   }
-
   if (src && failedSrc === src) src = null
 
-
-
   if (src) {
-
     return (
-
       <ThumbnailFramedImage
-
         src={src}
-
         alt={work.thumbnail.alt || work.title}
-
         layout={work.thumbnailLayout}
-
         className="absolute inset-0"
-
+        priority={priority || isCapacitorNative()}
         onError={() => setFailedSrc(src)}
-
       />
-
     )
-
   }
 
   return (
@@ -191,7 +183,6 @@ export function WorkThumbnail({ work }: { work: PortfolioWork }) {
       <PlaceholderSvg id={work.id} title={work.title} />
     </div>
   )
-
 }
 
 

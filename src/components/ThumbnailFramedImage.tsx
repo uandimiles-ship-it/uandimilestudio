@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   defaultThumbnailLayout,
   isDefaultThumbnailLayout,
@@ -12,7 +12,9 @@ type Props = {
   alt?: string
   layout?: ThumbnailLayout | null
   className?: string
+  priority?: boolean
   onError?: () => void
+  onLoad?: () => void
 }
 
 /** 포트폴리오 카드 — 기본 레이아웃은 단순 contain (ResizeObserver 없음) */
@@ -21,28 +23,41 @@ export function ThumbnailFramedImage({
   alt = '',
   layout,
   className = '',
+  priority = false,
   onError,
+  onLoad,
 }: Props) {
   const L = normalizeThumbnailLayout(layout ?? defaultThumbnailLayout())
   const useSimpleContain = isDefaultThumbnailLayout(layout)
   const boxRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
 
+  const measure = () => {
+    const el = boxRef.current
+    if (!el) return
+    const { width, height } = el.getBoundingClientRect()
+    if (width > 0 && height > 0) {
+      setSize({ w: width, h: height })
+    }
+  }
+
+  useLayoutEffect(() => {
+    if (useSimpleContain) return
+    measure()
+  }, [useSimpleContain, src, L.scale, L.translateX, L.translateY])
+
   useEffect(() => {
     if (useSimpleContain) return
     const el = boxRef.current
     if (!el) return
-    const ro = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect
-      if (width > 0 && height > 0) {
-        setSize({ w: width, h: height })
-      }
-    })
+    const ro = new ResizeObserver(() => measure())
     ro.observe(el)
     return () => ro.disconnect()
   }, [useSimpleContain])
 
   const rootClass = `absolute inset-0 overflow-hidden bg-zinc-950 ${className}`
+  const imgLoading = priority ? 'eager' : 'lazy'
+  const imgFetch = priority ? ({ fetchPriority: 'high' } as const) : {}
 
   if (useSimpleContain) {
     return (
@@ -52,8 +67,11 @@ export function ThumbnailFramedImage({
           alt={alt}
           draggable={false}
           className="h-full w-full object-contain"
-          loading="lazy"
+          loading={imgLoading}
+          decoding={priority ? 'sync' : 'async'}
           onError={onError}
+          onLoad={onLoad}
+          {...imgFetch}
         />
       </div>
     )
@@ -63,29 +81,23 @@ export function ThumbnailFramedImage({
 
   return (
     <div ref={boxRef} className={rootClass}>
-      <div className="absolute inset-0 overflow-hidden">
-        {sized ? (
+      {sized ? (
+        <div className="absolute inset-0 overflow-hidden">
           <div style={thumbnailInnerStyle(L, size.w, size.h)}>
             <img
               src={src}
               alt={alt}
               draggable={false}
               className="h-full w-full object-cover"
-              loading="lazy"
+              loading={imgLoading}
+              decoding={priority ? 'sync' : 'async'}
               onError={onError}
+              onLoad={onLoad}
+              {...imgFetch}
             />
           </div>
-        ) : (
-          <img
-            src={src}
-            alt={alt}
-            draggable={false}
-            className="h-full w-full object-cover"
-            loading="lazy"
-            onError={onError}
-          />
-        )}
-      </div>
+        </div>
+      ) : null}
     </div>
   )
 }

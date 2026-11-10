@@ -1,7 +1,6 @@
 import type { PortfolioWork } from '../content/portfolio'
 import { WORKS_BUNDLE_REVISION } from './bundleWorksPatch'
 import { isCapacitorNative } from './platform'
-import { PUBLIC_SITE_URL } from './siteUrl'
 import { youtubeThumbnailUrl } from './youtubeLink'
 
 /**
@@ -14,8 +13,9 @@ export function normalizeThumbnailSrcForPlatform(src: string): string {
   if (!trimmed.startsWith('/thumbnails/')) return trimmed
   const base = trimmed.split('?')[0]
   const versioned = `${base}?v=${WORKS_BUNDLE_REVISION}`
+  // 앱: APK에 포함된 public/thumbnails 사용 (Netlify URL은 콜드스타트마다 네트워크 깜빡임)
   if (isCapacitorNative()) {
-    return `${PUBLIC_SITE_URL}${versioned}`
+    return versioned
   }
   if (trimmed.includes('?')) return trimmed
   return versioned

@@ -1,9 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AdminShield } from './components/AdminShield'
+import { useStudioBudgetPause, WorldBudgetPause } from './components/WorldBudgetGate'
 import { useOwnerLogoBootstrap } from './components/OwnerBootstrap'
 import { WorkThumbnail } from './components/WorkThumbnail'
 import { portfolio, type PortfolioWork } from './content/portfolio'
+import { finishNativeSplashHandoff, NATIVE_BRAND_LOGO_SRC } from './lib/nativeSplash'
+import { isCapacitorNative } from './lib/platform'
+import { resolveWorkThumbnailSrc } from './lib/thumbnailResolve'
 import { resolveWorkYoutubeId } from './lib/youtubeLink'
 import { useNativeBackButton } from './hooks/useNativeBackButton'
 import { usePortfolioWorks } from './hooks/usePortfolioWorks'
@@ -35,6 +39,7 @@ function App() {
   const navigate = useNavigate()
   const logoBootstrap = useOwnerLogoBootstrap(() => navigate('/admin'))
   const { works, loading } = usePortfolioWorks()
+  const budgetPause = useStudioBudgetPause()
   const [activeWorkId, setActiveWorkId] = useState<string | null>(null)
 
   const activeWork = useMemo(() => {
@@ -42,7 +47,50 @@ function App() {
     return works.find((w) => w.id === activeWorkId) ?? null
   }, [activeWorkId, works])
 
+  const splashHandoffDone = useRef(false)
+
+  useLayoutEffect(() => {
+    if (!isCapacitorNative() || splashHandoffDone.current) return
+    splashHandoffDone.current = true
+    const thumbPrefetch = works
+      .slice(0, 2)
+      .map((w) => resolveWorkThumbnailSrc(w))
+      .filter((u): u is string => Boolean(u))
+    finishNativeSplashHandoff({
+      criticalUrls: [NATIVE_BRAND_LOGO_SRC],
+      prefetchUrls: thumbPrefetch,
+    })
+  }, [works])
+
   const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const workDetailVideoRef = useRef<HTMLDivElement | null>(null)
+  const [workDetailMetaMaxH, setWorkDetailMetaMaxH] = useState<number | undefined>()
+
+  useLayoutEffect(() => {
+    if (!activeWork || isCapacitorNative()) {
+      setWorkDetailMetaMaxH(undefined)
+      return
+    }
+    const el = workDetailVideoRef.current
+    if (!el) return
+    const sync = () => {
+      if (window.matchMedia('(min-width: 768px)').matches) {
+        const h = Math.round(el.getBoundingClientRect().height)
+        setWorkDetailMetaMaxH(h > 0 ? h : undefined)
+      } else {
+        setWorkDetailMetaMaxH(undefined)
+      }
+    }
+    sync()
+    const ro = new ResizeObserver(sync)
+    ro.observe(el)
+    window.addEventListener('resize', sync)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', sync)
+    }
+  }, [activeWork?.id])
+
   useEffect(() => { if (!activeWork) return; closeButtonRef.current?.focus() }, [activeWork])
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) { if (e.key === 'Escape') setActiveWorkId(null) }
@@ -123,19 +171,33 @@ function App() {
     )
   }
 
-  function WorkCard({ work }: { work: PortfolioWork }) {
+  useEffect(() => {
+    for (const id of ['work-1', 'work-2'] as const) {
+      const w = portfolio.works.find((item) => item.id === id)
+      if (!w) continue
+      const href = resolveWorkThumbnailSrc(w)
+      if (!href) continue
+      const link = document.createElement('link')
+      link.rel = 'preload'
+      link.as = 'image'
+      link.href = href
+      document.head.appendChild(link)
+    }
+  }, [])
+
+  function WorkCard({ work, priorityThumb }: { work: PortfolioWork; priorityThumb?: boolean }) {
     return (
       <button
         type="button"
         onClick={() => setActiveWorkId(work.id)}
-        className="portfolio-work-card group flex h-full w-full min-w-0 flex-col rounded-2xl p-2 text-left outline-none ring-1 ring-inset ring-white/10 transition-[background-color,box-shadow] duration-150 hover:bg-white/[0.14] hover:ring-white/28 active:bg-white/[0.14] active:ring-white/32 focus-visible:bg-white/[0.14] focus-visible:ring-2 focus-visible:ring-white/35 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+        className="portfolio-work-card group flex h-full w-full min-w-0 flex-col rounded-2xl p-2 text-left outline-none ring-1 ring-inset ring-white/10 transition-[background-color,box-shadow,transform] duration-200 hover:bg-white/[0.12] hover:ring-white/26 hover:shadow-lg hover:shadow-black/25 active:scale-[0.995] active:bg-white/[0.13] active:ring-white/30 focus-visible:bg-white/[0.12] focus-visible:ring-2 focus-visible:ring-white/32 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
       >
         <div
-          className="portfolio-work-card-thumb relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-inset ring-white/10 transition-[box-shadow,background-color] duration-150 group-hover:ring-white/45 group-hover:bg-zinc-800 group-active:ring-white/45 group-active:bg-zinc-800"
+          className="portfolio-work-card-thumb relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-zinc-950 ring-1 ring-inset ring-white/10 transition-[box-shadow,background-color] duration-200 group-hover:ring-white/38 group-hover:bg-zinc-800 group-active:ring-white/40 group-active:bg-zinc-800"
         >
-          <WorkThumbnail work={work} />
+          <WorkThumbnail work={work} priority={priorityThumb} />
           <div
-            className="pointer-events-none absolute inset-0 z-10 bg-white/0 transition-colors duration-150 group-hover:bg-white/[0.12] group-active:bg-white/[0.12]"
+            className="pointer-events-none absolute inset-0 z-10 bg-white/0 transition-colors duration-200 group-hover:bg-white/[0.09] group-active:bg-white/[0.11]"
             aria-hidden
           />
         </div>
@@ -168,15 +230,20 @@ function App() {
         <div className="mx-auto max-w-6xl px-5 py-8">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <img
-                src="/brand/uandi-studio-logo.png"
-                alt="U&I STUDIO"
-                width={40}
-                height={40}
-                draggable={false}
-                className="h-10 w-10 select-none rounded-2xl object-cover touch-none"
-                {...logoBootstrap}
-              />
+              <span className="inline-flex h-10 w-10 shrink-0 rounded-2xl bg-zinc-900 ring-1 ring-inset ring-white/10">
+                <img
+                  src={NATIVE_BRAND_LOGO_SRC}
+                  alt="U&I STUDIO"
+                  width={40}
+                  height={40}
+                  draggable={false}
+                  loading="eager"
+                  decoding="sync"
+                  fetchPriority="high"
+                  className="h-10 w-10 select-none rounded-2xl object-cover touch-none"
+                  {...logoBootstrap}
+                />
+              </span>
               <div>
                 <div className="text-sm text-white/60">Video Portfolio</div>
                 <div className="text-base font-semibold">{portfolio.name}</div>
@@ -260,13 +327,12 @@ function App() {
             </div>
             <span className="text-sm text-white/60">{works.length}개</span>
           </div>
-          {loading ? (
-            <p className="text-sm text-white/50">작품 불러오는 중…</p>
-          ) : (
-            <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4">
-              {works.map((w) => <WorkCard key={w.id} work={w} />)}
-            </div>
-          )}
+          <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4">
+            {works.map((w, index) => (
+              <WorkCard key={w.id} work={w} priorityThumb={index < 2} />
+            ))}
+          </div>
+          {loading ? <p className="mt-3 text-sm text-white/40">최신 작품 정보 동기화 중…</p> : null}
         </section>
 
         <footer className="mx-auto max-w-6xl px-5 pb-24">
@@ -294,93 +360,88 @@ function App() {
       </main>
 
       {activeWork ? (
-        activeWork.id === 'work-2' ? (
-          <div role="dialog" aria-modal="true"
-            className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
-            onMouseDown={(e) => { if (e.target === e.currentTarget) setActiveWorkId(null) }}>
-            <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-2xl">
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="work-detail-overlay fixed inset-0 z-50 overflow-y-auto bg-black/60 p-4"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setActiveWorkId(null)
+          }}
+        >
+          <div className="mx-auto flex min-h-full w-full max-w-4xl items-center justify-center py-8 sm:py-12">
+            <div className="work-detail-panel w-full overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-2xl">
               <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
                 <div>
-                  <div className="text-sm text-white/60">{activeWork.subtitle ?? ''}{activeWork.year ? ` · ${activeWork.year}` : ''}</div>
+                  <div className="text-sm text-white/60">
+                    {activeWork.subtitle ?? ''}
+                    {activeWork.year ? ` · ${activeWork.year}` : ''}
+                  </div>
                   <div className="mt-1 text-lg font-semibold">{activeWork.title}</div>
                 </div>
-                <button ref={closeButtonRef} type="button" onClick={() => setActiveWorkId(null)}
-                  className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+                <button
+                  ref={closeButtonRef}
+                  type="button"
+                  onClick={() => setActiveWorkId(null)}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+                >
                   닫기 (Esc)
                 </button>
               </div>
-              <div className="grid gap-6 p-5 md:grid-cols-[1.5fr_0.9fr]">
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+              <div className="work-detail-body grid gap-5 p-5 md:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] md:items-start md:gap-4">
+                <div
+                  ref={workDetailVideoRef}
+                  className="work-detail-video w-full shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900"
+                >
                   <WorkYoutubeEmbed work={activeWork} />
                 </div>
-                <div className="space-y-4">
-                  {activeWork.description ? (
+                <div
+                  className="work-detail-meta flex min-h-0 min-w-0 flex-col"
+                  style={
+                    workDetailMetaMaxH && !isCapacitorNative()
+                      ? { maxHeight: workDetailMetaMaxH }
+                      : undefined
+                  }
+                >
+                  <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto pr-0.5 md:space-y-2 md:text-[13px] md:leading-snug">
+                    {activeWork.description ? (
+                      <div>
+                        <div className="text-sm font-semibold md:text-xs">설명</div>
+                        <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-white/70 md:mt-0.5 md:text-[13px] md:leading-snug">
+                          {activeWork.description}
+                        </p>
+                      </div>
+                    ) : null}
                     <div>
-                      <div className="text-sm font-semibold">설명</div>
-                      <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/70">{activeWork.description}</p>
-                    </div>
-                  ) : null}
-                  <div>
-                    <div className="text-sm font-semibold">태그</div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {activeWork.tags.map((t) => (
-                        <span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70 notranslate" translate="no">{t}</span>
-                      ))}
+                      <div className="text-sm font-semibold md:text-xs">태그</div>
+                      <div className="mt-1.5 flex flex-wrap gap-1.5 md:mt-1">
+                        {activeWork.tags.map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-white/70 notranslate md:px-2 md:py-0.5 md:text-[11px]"
+                            translate="no"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <WorkDetailLinks work={activeWork} />
-                  <a href={kakaoLink} target="_blank" rel="noreferrer"
-                    className="inline-flex w-full items-center justify-center rounded-2xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
-                    카톡으로 문의하기
-                  </a>
+                  <div className="mt-2 shrink-0 space-y-2 border-t border-white/10 pt-2.5 md:mt-1.5 md:space-y-1.5 md:pt-2">
+                    <WorkDetailLinks work={activeWork} />
+                    <a
+                      href={kakaoLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex w-full items-center justify-center rounded-xl bg-yellow-400 px-3 py-2 text-sm font-semibold text-zinc-950 hover:bg-yellow-300 md:rounded-lg md:py-1.5 md:text-xs"
+                    >
+                      카톡으로 문의하기
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        ) : (
-          <div role="dialog" aria-modal="true"
-            className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
-            onMouseDown={(e) => { if (e.target === e.currentTarget) setActiveWorkId(null) }}>
-            <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-2xl">
-              <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
-                <div>
-                  <div className="text-sm text-white/60">{activeWork.subtitle ?? ''}{activeWork.year ? ` · ${activeWork.year}` : ''}</div>
-                  <div className="mt-1 text-lg font-semibold">{activeWork.title}</div>
-                </div>
-                <button ref={closeButtonRef} type="button" onClick={() => setActiveWorkId(null)}
-                  className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10">
-                  닫기 (Esc)
-                </button>
-              </div>
-              <div className="grid gap-6 p-5 md:grid-cols-[1.5fr_0.9fr]">
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-                  <WorkYoutubeEmbed work={activeWork} />
-                </div>
-                <div className="space-y-4">
-                  {activeWork.description ? (
-                    <div>
-                      <div className="text-sm font-semibold">설명</div>
-                      <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/70">{activeWork.description}</p>
-                    </div>
-                  ) : null}
-                  <div>
-                    <div className="text-sm font-semibold">태그</div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {activeWork.tags.map((t) => (
-                        <span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70 notranslate" translate="no">{t}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <WorkDetailLinks work={activeWork} />
-                  <a href={kakaoLink} target="_blank" rel="noreferrer"
-                    className="inline-flex w-full items-center justify-center rounded-2xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-yellow-300">
-                    카톡으로 문의하기
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
+        </div>
       ) : null}
 
       <a
@@ -396,6 +457,8 @@ function App() {
           <span className="bg-gradient-to-r from-violet-300 to-sky-300 bg-clip-text text-sm font-bold text-transparent">NOW AI</span>
         </span>
       </a>
+
+      {budgetPause.paused ? <WorldBudgetPause message={budgetPause.message} /> : null}
 
       <AdminShield />
     </div>

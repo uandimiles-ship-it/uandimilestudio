@@ -4,12 +4,22 @@ import { BrowserRouter, HashRouter, Navigate, Route, Routes } from 'react-router
 import './index.css'
 import AdminApp from './admin/AdminApp.tsx'
 import App from './App.tsx'
+import { ensureLocalWorksPatched } from './lib/bundleWorksPatch'
+import { armNativeSplashHandoff, preloadNativeBrandLogo } from './lib/nativeSplash'
 import { isCapacitorNative } from './lib/platform'
+import { startWebHeroWarmup } from './lib/webHeroWarmup'
 
 const Router = isCapacitorNative() ? HashRouter : BrowserRouter
 
 if (isCapacitorNative()) {
   document.body.classList.add('capacitor-native')
+  ensureLocalWorksPatched()
+  preloadNativeBrandLogo()
+  armNativeSplashHandoff()
+}
+
+if (!isCapacitorNative()) {
+  startWebHeroWarmup()
 }
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator && !isCapacitorNative()) {

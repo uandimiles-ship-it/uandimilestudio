@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 스플래시 종료 시 앱 아이콘이 따로 '꺼지는' 느낌을 줄이기 위해 단색(배경과 동일) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/splash_background" />
+    <size android:width="48dp" android:height="48dp" />
+</shape>

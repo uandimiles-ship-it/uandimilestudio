@@ -55,7 +55,7 @@ export const portfolio: PortfolioProfile = {
   headline: '영상기획 · 촬영 · 편집 · 모션 그래픽',
   heroTag: '기획 · 촬영 · 편집 · 모션 그래픽',
   bio:
-    '사진 한장으로 기획부터 촬영, 편집, 모션 그래픽까지 원스톱으로 진행합니다.\n브랜드 고객 메시지를 "짧고 강하게" 전달하는 영상\n콘텐츠를 만듭니다.',
+    '사진 한장으로 기획부터 촬영, 편집, 모션 그래픽까지 원스톱으로 진행합니다.\n브랜드 고객 메시지를 "짧고 강하게" 전달하는 영상 콘텐츠를 만듭니다.',
   intro: {
     mainWork: 'AI · 광고 · 홍보 · 이벤트 · 영상 최적화',
     scope: '기획 / 촬영 / 편집 / 모션 그래픽',
@@ -80,7 +80,7 @@ export const portfolio: PortfolioProfile = {
       creator: '유앤아이 스튜디오',
       subtitle: 'NOW World · Total Brand Film',
       year: '2026',
-      tags: ['NOW World', '브랜드필름', '유앤아이 스튜디오', '8브랜드'],
+      tags: ['NOW World', '브랜드필름', '유앤아이 스튜디오', '나우월드 브랜드'],
       thumbnail: {
         src: '/thumbnails/work-1-uandi-studio.png',
         alt: 'U&I STUDIO — NOW World 브랜드 필름',
@@ -88,7 +88,7 @@ export const portfolio: PortfolioProfile = {
       embed: { type: 'youtube', id: '6bSicVeKD1Y' },
       link: 'https://youtu.be/6bSicVeKD1Y?si=D0_WZPOrYRJ6DfDF',
       description:
-        'NOW World 통합 브랜드 소개 영상입니다. 웹·앱·게임·NOW Books·NOW Music 등 NOW World 8브랜드를 한 편의 브랜드 필름으로 담았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
+        'NOW World 통합 브랜드 소개 영상입니다. 웹·앱·게임·NOW Books·NOW Music 등 NOW World 나우월드 브랜드를 한 편의 브랜드 필름으로 담았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
     {
       id: 'work-2',

@@ -15,10 +15,18 @@ export function loadLocalPortfolioWorks(): PortfolioWork[] | null {
   }
 }
 
-export function saveLocalPortfolioWorks(works: PortfolioWork[]): void {
+export function saveLocalPortfolioWorks(
+  works: PortfolioWork[],
+  options?: { notify?: boolean },
+): void {
   const clean = sanitizePortfolioWorks(works)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(clean))
-  window.dispatchEvent(new CustomEvent(PORTFOLIO_WORKS_UPDATED_EVENT))
+  const next = JSON.stringify(clean)
+  const prev = localStorage.getItem(STORAGE_KEY)
+  if (prev === next) return
+  localStorage.setItem(STORAGE_KEY, next)
+  if (options?.notify !== false) {
+    window.dispatchEvent(new CustomEvent(PORTFOLIO_WORKS_UPDATED_EVENT))
+  }
 }
 
 export function deleteLocalPortfolioWork(workId: string): void {

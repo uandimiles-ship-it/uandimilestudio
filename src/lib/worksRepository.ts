@@ -1,92 +1,42 @@
 import {
-
   collection,
-
   deleteDoc,
-
+  deleteField,
   doc,
-
   getDocs,
-
   orderBy,
-
   query,
-
   setDoc,
-
   writeBatch,
-
   type DocumentData,
-
 } from 'firebase/firestore'
-
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
-
 import { portfolio, type PortfolioWork } from '../content/portfolio'
-
 import {
-
   defaultThumbnailLayout,
-
   normalizeThumbnailLayout,
-
-  type ThumbnailLayout,
-
 } from './thumbnailLayout'
-
 import { getFirebaseDb, getFirebaseStorage, isFirebaseConfigured } from './firebase'
 import { ensureFirebaseWebSession, formatFirebaseWriteError } from './firebaseSession'
 import { patchLocalWorksFromBundle } from './bundleWorksPatch'
 import { loadLocalPortfolioWorks, saveLocalPortfolioWorks } from './localPortfolioStore'
-import { normalizeThumbnailSrcForPlatform, sanitizeWorkThumbnail } from './thumbnailResolve'
-import { isCapacitorNative } from './platform'
+import { sanitizeWorkThumbnail } from './thumbnailResolve'
+import { applyWebHeroCardDisplayPolicy } from './webHeroWarmup'
 import { parseYoutubeVideoId, resolveWorkYoutubeId } from './youtubeLink'
 
 async function beforeAdminWrite(): Promise<void> {
   await ensureFirebaseWebSession()
 }
 
-function applyNativeThumbnailFixes(works: PortfolioWork[]): PortfolioWork[] {
-  if (!isCapacitorNative()) return works
-  const bundled9 = portfolio.works.find((w) => w.id === 'work-9')
-  if (!bundled9) return works
-  const bundledSrc = normalizeThumbnailSrcForPlatform(bundled9.thumbnail.src)
-  return works.map((w) => {
-    if (w.id !== 'work-9') return w
-    return {
-      ...w,
-      thumbnail: { ...bundled9.thumbnail, src: bundledSrc, alt: w.thumbnail.alt || bundled9.thumbnail.alt },
-    }
-  })
+function finalizeWorksForClient(works: PortfolioWork[]): PortfolioWork[] {
+  return applyWebHeroCardDisplayPolicy(works)
 }
 
-function shouldApplyBundledThumbnail(cloud: PortfolioWork, bundled: PortfolioWork): boolean {
-  const bundledSrc = bundled.thumbnail.src?.trim() ?? ''
-  if (!bundledSrc.startsWith('/thumbnails/')) return false
-  const cloudSrc = cloud.thumbnail.src?.trim() ?? ''
-  if (!cloudSrc) return true
-  const cloudBase = cloudSrc.split('?')[0]
-  const bundledBase = bundledSrc.split('?')[0]
-  if (cloudBase === bundledBase) return false
-  if (cloudSrc.includes('ytimg.com') || cloudSrc.includes('img.youtube.com')) return true
-  if (cloud.id === 'work-9') {
-    return !cloudSrc.includes('work-9-fan-anime-collage')
-  }
-  return false
-}
-
-/** Firestore에 없는 작품만 번들로 채움 — 클라우드에 있는 설명·제목은 유지 */
+/** 클라우드에 없는 작품만 번들로 보충. 썸네일·유튜브·크기는 클라우드 값을 유지하고, 관리자가 추가한 작품도 버리지 않음 */
 function mergeCloudWithBundledDefaults(cloud: PortfolioWork[]): PortfolioWork[] {
-  const byId = new Map(cloud.map((w) => [w.id, w]))
-  return portfolio.works.map((b) => {
-    const fromCloud = byId.get(b.id)
-    if (!fromCloud) return b
-    if (fromCloud.id === 'work-9') {
-      return { ...fromCloud, thumbnail: b.thumbnail }
-    }
-    const thumbnail = shouldApplyBundledThumbnail(fromCloud, b) ? b.thumbnail : fromCloud.thumbnail
-    return { ...fromCloud, thumbnail }
-  })
+  const cloudIds = new Set(cloud.map((w) => w.id))
+  const missing = portfolio.works.filter((b) => !cloudIds.has(b.id))
+  return [...cloud, ...missing]
 }
 
 function wrapWriteError(err: unknown): Error {
@@ -102,54 +52,30 @@ function stripUndefined<T extends Record<string, unknown>>(obj: T): T {
   return out
 }
 
-
-
 export const PORTFOLIO_WORKS_COLLECTION = 'portfolio_works'
 
-
-
 export type FirestoreWorkDoc = {
-
   sortOrder: number
-
   title: string
-
   subtitle?: string
-
   creator?: string
-
   year?: string
-
   tags: string[]
-
   accentColor?: number
-
   youtubeVideoId: string
-
   description?: string
-
   link?: string
-
   thumbnailUrl?: string
-
   thumbnailAlt?: string
-
   thumbnailScale?: number
-
   thumbnailTranslateX?: number
-
   thumbnailTranslateY?: number
-
   /** @deprecated 이전 focal — 읽기만 */
   thumbnailFocalX?: number
-
   thumbnailFocalY?: number
-
 }
 
-
-
-function layoutFromDoc(d: FirestoreWorkDoc): ThumbnailLayout | undefined {
+function layoutFromDoc(d: FirestoreWorkDoc) {
   if (
     d.thumbnailScale == null &&
     d.thumbnailTranslateX == null &&
@@ -164,80 +90,28 @@ function layoutFromDoc(d: FirestoreWorkDoc): ThumbnailLayout | undefined {
   })
 }
 
-
-
-function layoutToDoc(layout?: ThumbnailLayout): Pick<
-  FirestoreWorkDoc,
-  'thumbnailScale' | 'thumbnailTranslateX' | 'thumbnailTranslateY'
-> {
-  const L = normalizeThumbnailLayout(layout ?? defaultThumbnailLayout())
-  const isDefault = L.scale === 1 && L.translateX === 0 && L.translateY === 0
-  if (isDefault) {
-    return {}
-  }
-  return {
-    thumbnailScale: L.scale,
-    thumbnailTranslateX: L.translateX,
-    thumbnailTranslateY: L.translateY,
-  }
+function isPersistableCloudThumbnail(src: string): boolean {
+  return (
+    src.startsWith('http://') ||
+    src.startsWith('https://') ||
+    src.startsWith('/thumbnails/')
+  )
 }
 
-
-
-function docToWork(id: string, data: DocumentData): PortfolioWork {
-
-  const d = data as FirestoreWorkDoc
-
-  const storedLink = (d.link ?? '').trim()
-  const legacyId = (d.youtubeVideoId ?? '').trim()
-  const link =
-    storedLink || (legacyId ? `https://youtu.be/${legacyId}` : '')
-  const videoId = parseYoutubeVideoId(link) || legacyId
-
-  return {
-
-    id,
-
-    title: d.title ?? '',
-
-    subtitle: d.subtitle,
-
-    creator: d.creator ?? d.subtitle,
-
-    year: d.year,
-
-    accentColor: d.accentColor,
-
-    tags: Array.isArray(d.tags) ? d.tags : [],
-
-    thumbnail: {
-
-      src: d.thumbnailUrl ?? '',
-
-      alt: d.thumbnailAlt ?? d.title ?? '',
-
-    },
-
-    thumbnailLayout: layoutFromDoc(d),
-
-    embed: videoId ? { type: 'youtube', id: videoId } : undefined,
-
-    description: d.description,
-
-    link: link || undefined,
-
-  }
-
-}
-
-
-
-function workToDoc(work: PortfolioWork, sortOrder: number): FirestoreWorkDoc {
+function workToDoc(
+  work: PortfolioWork,
+  sortOrder: number,
+  options?: { mergeDeletes?: boolean },
+): DocumentData {
   const safe = sanitizeWorkThumbnail(work)
   const link = safe.link?.trim() ?? ''
   const videoId = resolveWorkYoutubeId(safe) ?? ''
+  const src = safe.thumbnail.src?.trim() ?? ''
+  const L = normalizeThumbnailLayout(safe.thumbnailLayout ?? defaultThumbnailLayout())
+  const isDefault = L.scale === 1 && L.translateX === 0 && L.translateY === 0
+  const mergeDeletes = options?.mergeDeletes === true
 
-  return stripUndefined({
+  const data: Record<string, unknown> = stripUndefined({
     sortOrder,
     title: safe.title,
     subtitle: safe.subtitle,
@@ -248,35 +122,79 @@ function workToDoc(work: PortfolioWork, sortOrder: number): FirestoreWorkDoc {
     youtubeVideoId: videoId,
     description: safe.description,
     link: link || undefined,
-    thumbnailUrl:
-      safe.thumbnail.src.startsWith('http://') || safe.thumbnail.src.startsWith('https://')
-        ? safe.thumbnail.src
-        : undefined,
     thumbnailAlt: safe.thumbnail.alt || safe.title,
-    ...layoutToDoc(safe.thumbnailLayout),
-  }) as FirestoreWorkDoc
-}
+  })
 
-
-
-export async function fetchPortfolioWorks(): Promise<{
-
-  works: PortfolioWork[]
-
-  source: 'firestore' | 'local'
-
-}> {
-
-  const deviceWorks = isCapacitorNative() ? loadLocalPortfolioWorks() : null
-  if (deviceWorks && deviceWorks.length > 0) {
-    const patched = applyNativeThumbnailFixes(patchLocalWorksFromBundle(deviceWorks))
-    saveLocalPortfolioWorks(patched)
-    return { works: patched, source: 'local' }
+  if (isPersistableCloudThumbnail(src)) {
+    data.thumbnailUrl = src
+  } else if (mergeDeletes) {
+    data.thumbnailUrl = deleteField()
   }
 
+  if (isDefault) {
+    if (mergeDeletes) {
+      data.thumbnailScale = deleteField()
+      data.thumbnailTranslateX = deleteField()
+      data.thumbnailTranslateY = deleteField()
+    }
+  } else {
+    data.thumbnailScale = L.scale
+    data.thumbnailTranslateX = L.translateX
+    data.thumbnailTranslateY = L.translateY
+  }
+
+  return data
+}
+
+function docToWork(id: string, data: DocumentData): PortfolioWork {
+  const d = data as FirestoreWorkDoc
+  const storedLink = (d.link ?? '').trim()
+  const legacyId = (d.youtubeVideoId ?? '').trim()
+  const link = storedLink || (legacyId ? `https://youtu.be/${legacyId}` : '')
+  const videoId = parseYoutubeVideoId(link) || legacyId
+
+  return {
+    id,
+    title: d.title ?? '',
+    subtitle: d.subtitle,
+    creator: d.creator ?? d.subtitle,
+    year: d.year,
+    accentColor: d.accentColor,
+    tags: Array.isArray(d.tags) ? d.tags : [],
+    thumbnail: {
+      src: d.thumbnailUrl ?? '',
+      alt: d.thumbnailAlt ?? d.title ?? '',
+    },
+    thumbnailLayout: layoutFromDoc(d),
+    embed: videoId ? { type: 'youtube', id: videoId } : undefined,
+    description: d.description,
+    link: link || undefined,
+  }
+}
+
+/** 첫 페인트용 — Firestore 대기 없이 번들·기기 캐시로 카드 깜빡임 방지 */
+export function getSyncPortfolioWorks(): PortfolioWork[] {
+  const deviceWorks = loadLocalPortfolioWorks()
+  if (deviceWorks && deviceWorks.length > 0) {
+    return finalizeWorksForClient(
+      patchLocalWorksFromBundle(deviceWorks, { persistToDevice: false }),
+    )
+  }
+  return finalizeWorksForClient(portfolio.works)
+}
+
+export async function fetchPortfolioWorks(): Promise<{
+  works: PortfolioWork[]
+  source: 'firestore' | 'local'
+}> {
+  const localWorks = loadLocalPortfolioWorks()
+
   if (!isFirebaseConfigured()) {
-    const works = applyNativeThumbnailFixes(portfolio.works)
-    if (isCapacitorNative()) saveLocalPortfolioWorks(works)
+    const works = finalizeWorksForClient(
+      localWorks?.length
+        ? patchLocalWorksFromBundle(localWorks, { persistToDevice: false })
+        : portfolio.works,
+    )
     return { works, source: 'local' }
   }
 
@@ -286,26 +204,27 @@ export async function fetchPortfolioWorks(): Promise<{
       query(collection(db, PORTFOLIO_WORKS_COLLECTION), orderBy('sortOrder', 'asc')),
     )
     if (snap.empty) {
-      const works = applyNativeThumbnailFixes(portfolio.works)
-      if (isCapacitorNative()) saveLocalPortfolioWorks(works)
+      const works = finalizeWorksForClient(
+        localWorks?.length
+          ? patchLocalWorksFromBundle(localWorks, { persistToDevice: false })
+          : portfolio.works,
+      )
       return { works, source: 'local' }
     }
     const cloudWorks = snap.docs.map((d) => docToWork(d.id, d.data()))
     const merged = mergeCloudWithBundledDefaults(cloudWorks)
-    const works = applyNativeThumbnailFixes(
-      patchLocalWorksFromBundle(merged, { persistToDevice: false }),
-    )
-    if (isCapacitorNative()) {
-      saveLocalPortfolioWorks(works)
-    }
+    const works = finalizeWorksForClient(merged)
+    saveLocalPortfolioWorks(works, { notify: false })
     return { works, source: 'firestore' }
   } catch (err) {
     console.warn('Firestore 작품 로드 실패, 로컬 폴백 사용', err)
-    const works = applyNativeThumbnailFixes(portfolio.works)
-    if (isCapacitorNative()) saveLocalPortfolioWorks(works)
+    const works = finalizeWorksForClient(
+      localWorks?.length
+        ? patchLocalWorksFromBundle(localWorks, { persistToDevice: false })
+        : portfolio.works,
+    )
     return { works, source: 'local' }
   }
-
 }
 
 /** 관리자 — 항상 이 기기에 먼저 저장 (나우 AI 앱 로컬 편집과 동일) */
@@ -321,7 +240,7 @@ export async function syncPortfolioWorksToCloud(works: PortfolioWork[]): Promise
     const db = getFirebaseDb()
     const batch = writeBatch(db)
     works.forEach((work, index) => {
-      batch.set(doc(db, PORTFOLIO_WORKS_COLLECTION, work.id), workToDoc(work, index), {
+      batch.set(doc(db, PORTFOLIO_WORKS_COLLECTION, work.id), workToDoc(work, index, { mergeDeletes: true }), {
         merge: true,
       })
     })
@@ -342,38 +261,28 @@ export async function removePortfolioWorkFromCloud(workId: string): Promise<void
   }
 }
 
-
-
 export async function savePortfolioWork(
-
   work: PortfolioWork,
-
   sortOrder: number,
-
 ): Promise<void> {
-
   try {
     await beforeAdminWrite()
     const db = getFirebaseDb()
-    await setDoc(doc(db, PORTFOLIO_WORKS_COLLECTION, work.id), workToDoc(work, sortOrder), {
+    await setDoc(doc(db, PORTFOLIO_WORKS_COLLECTION, work.id), workToDoc(work, sortOrder, { mergeDeletes: true }), {
       merge: true,
     })
   } catch (err) {
     throw wrapWriteError(err)
   }
-
 }
 
-
-
 export async function persistPortfolioWorksOrder(works: PortfolioWork[]): Promise<void> {
-
   try {
     await beforeAdminWrite()
     const db = getFirebaseDb()
     const batch = writeBatch(db)
     works.forEach((work, index) => {
-      batch.set(doc(db, PORTFOLIO_WORKS_COLLECTION, work.id), workToDoc(work, index), {
+      batch.set(doc(db, PORTFOLIO_WORKS_COLLECTION, work.id), workToDoc(work, index, { mergeDeletes: true }), {
         merge: true,
       })
     })
@@ -381,13 +290,9 @@ export async function persistPortfolioWorksOrder(works: PortfolioWork[]): Promis
   } catch (err) {
     throw wrapWriteError(err)
   }
-
 }
 
-
-
 export async function deletePortfolioWork(workId: string): Promise<void> {
-
   try {
     await beforeAdminWrite()
     const db = getFirebaseDb()
@@ -395,13 +300,9 @@ export async function deletePortfolioWork(workId: string): Promise<void> {
   } catch (err) {
     throw wrapWriteError(err)
   }
-
 }
 
-
-
 export async function seedPortfolioFromLocal(): Promise<number> {
-
   try {
     await beforeAdminWrite()
     const db = getFirebaseDb()
@@ -414,23 +315,14 @@ export async function seedPortfolioFromLocal(): Promise<number> {
   } catch (err) {
     throw wrapWriteError(err)
   }
-
 }
 
-
-
 export async function uploadWorkThumbnail(
-
   workId: string,
-
   file: File,
-
 ): Promise<string> {
-
   const storage = getFirebaseStorage()
-
   const path = `portfolio_thumbnails/${workId}/${file.name}`
-
   try {
     await beforeAdminWrite()
     const storageRef = ref(storage, path)
@@ -447,7 +339,4 @@ export async function uploadWorkThumbnail(
   } catch (err) {
     throw wrapWriteError(err)
   }
-
 }
-
-
