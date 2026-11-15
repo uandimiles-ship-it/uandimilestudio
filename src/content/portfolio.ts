@@ -235,6 +235,22 @@ export const portfolio: PortfolioProfile = {
         'NOW World 비공식 팬메이드 — 머털도사 모음집입니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
     {
+      id: 'work-12',
+      title: '머털도사 · 실사화 (팬메이드)',
+      creator: '유앤아이 스튜디오',
+      subtitle: 'Live-Action Fan Made · Shorts',
+      year: '2026',
+      tags: ['머털도사', '실사화', '팬메이드', 'AI영상'],
+      thumbnail: {
+        src: '/thumbnails/work-12-mutul-live-action.jpg',
+        alt: '머털도사 · 실사화 (팬메이드)',
+      },
+      embed: { type: 'youtube', id: 'tDFYasjY1wU' },
+      link: 'https://youtube.com/shorts/tDFYasjY1wU',
+      description:
+        '추억의 만화 머털도사를 실사 영화처럼 재해석한 팬메이드 작품입니다. AI 영상으로 머털도사의 세계를 실제 배우와 장면처럼 담아 보았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
+    },
+    {
       id: 'work-11',
       title: 'NOW & 유앤아이 · 짤 모음집',
       creator: '유앤아이 스튜디오',

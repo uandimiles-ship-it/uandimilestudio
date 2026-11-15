@@ -41,6 +41,8 @@ const placeholderConfigs: Record<
 
   'work-11': { bg1: '#18181b', bg2: '#27272a', accent: '#facc15', label: 'NOW', sub: 'MEMES' },
 
+  'work-12': { bg1: '#18181b', bg2: '#27272a', accent: '#84cc16', label: '머털도사', sub: 'LIVE ACTION' },
+
 }
 
 
