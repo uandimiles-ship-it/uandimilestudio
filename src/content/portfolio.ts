@@ -210,7 +210,7 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['댄스', '배틀', 'NOW World', '숏폼'],
       thumbnail: {
-        src: '',
+        src: '/thumbnails/work-7-battle-16x9.jpg',
         alt: '나우월드 세계배틀 댄스 경연',
       },
       embed: { type: 'youtube', id: 'PTwoikL4mKA' },
@@ -242,7 +242,7 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['애니', '주인공', '숏폼', '팬메이드'],
       thumbnail: {
-        src: '',
+        src: '/thumbnails/work-9-anime-heroes-16x9.jpg',
         alt: '팬메이드 애니 주인공 촬영현장',
       },
       embed: { type: 'youtube', id: 'Q3EurcPRJXU' },
