@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type SyntheticEvent } from 'react'
 import {
   defaultThumbnailLayout,
   isDefaultThumbnailLayout,
@@ -14,7 +14,7 @@ type Props = {
   className?: string
   priority?: boolean
   onError?: () => void
-  onLoad?: () => void
+  onLoad?: (e: SyntheticEvent<HTMLImageElement>) => void
 }
 
 /** 포트폴리오 카드 — 기본 레이아웃은 단순 contain (ResizeObserver 없음) */

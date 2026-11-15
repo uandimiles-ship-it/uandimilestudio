@@ -15,7 +15,7 @@ import { defaultThumbnailLayout } from '../lib/thumbnailLayout'
 import { blobToDataUrl, compressImageForThumbnail } from '../lib/imageCompress'
 import { isFirebaseConfigured } from '../lib/firebase'
 import { isPersistableThumbnailSrc, sanitizeWorkThumbnail } from '../lib/thumbnailResolve'
-import { applyVideoLink, youtubeThumbnailUrl } from '../lib/youtubeLink'
+import { applyVideoLink, isYoutubeAutoThumbnailSrc, youtubeThumbnailUrl } from '../lib/youtubeLink'
 import {
   fetchPortfolioWorks,
   removePortfolioWorkFromCloud,
@@ -56,6 +56,7 @@ function thumbEditSrc(work: PortfolioWork): string {
 function hasUploadedThumbnail(work: PortfolioWork): boolean {
   const src = customThumbSrc(work)
   if (!src) return false
+  if (isYoutubeAutoThumbnailSrc(src)) return false
   const yt = youtubeThumbnailUrl(work)
   return !yt || src !== yt
 }

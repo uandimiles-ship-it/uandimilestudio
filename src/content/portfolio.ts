@@ -82,11 +82,11 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['NOW World', '브랜드필름', '유앤아이 스튜디오', '나우월드 브랜드'],
       thumbnail: {
-        src: '/thumbnails/work-1-uandi-studio.png',
+        src: '',
         alt: 'U&I STUDIO — NOW World 브랜드 필름',
       },
-      embed: { type: 'youtube', id: '6bSicVeKD1Y' },
-      link: 'https://youtu.be/6bSicVeKD1Y?si=D0_WZPOrYRJ6DfDF',
+      embed: { type: 'youtube', id: '-vM46z8LFWk' },
+      link: 'https://youtu.be/-vM46z8LFWk',
       description:
         'NOW World 통합 브랜드 소개 영상입니다. 웹·앱·게임·NOW Books·NOW Music 등 NOW World 나우월드 브랜드를 한 편의 브랜드 필름으로 담았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
@@ -98,7 +98,7 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['브랜드광고', '유앤아이 스튜디오', '숏폼', '가상브랜드'],
       thumbnail: {
-        src: '/thumbnails/work-2-uandi-studio.png',
+        src: '',
         alt: 'U&I STUDIO — 브랜드별 광고 영상',
       },
       embed: { type: 'youtube', id: 'aUAqQjkaIgA' },
@@ -114,11 +114,11 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['이벤트', '돌잔치', '프로포즈', '결혼·기념일'],
       thumbnail: {
-        src: '/thumbnails/work-3-uandi-studio.png',
+        src: '',
         alt: 'U&I STUDIO — 이벤트 영상',
       },
-      embed: { type: 'youtube', id: '2MySKc88UxU' },
-      link: 'https://youtu.be/2MySKc88UxU?si=6qGdG_RYJjBwZfAX',
+      embed: { type: 'youtube', id: 'yurt7tamNg4' },
+      link: 'https://youtu.be/yurt7tamNg4',
       description:
         '가족·연인을 위한 이벤트 영상 모음입니다. 돌잔치·프로포즈·결혼·기념일·칠순잔치·어버이날 등 특별한 날을 영상으로 남깁니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
@@ -130,7 +130,7 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['NOW MUSIC', '나우뮤직', '18곡', 'NOW World'],
       thumbnail: {
-        src: '/thumbnails/work-4-youtube.jpg',
+        src: '',
         alt: 'NOW MUSIC 18곡 통합본',
       },
       embed: { type: 'youtube', id: 'ogRnN_z5wSQ' },
@@ -146,7 +146,7 @@ export const portfolio: PortfolioProfile = {
       year: '2025',
       tags: ['나우 애니', 'NOW World', '지브리 감성', '러브스토리'],
       thumbnail: {
-        src: '/thumbnails/work-5-youtube.jpg',
+        src: '',
         alt: '나우 애니 지브리 감성 러브스토리 모음',
       },
       embed: { type: 'youtube', id: 'pz3KGGx_OJU' },
@@ -162,7 +162,7 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['궁예', '시퀀스', '역사영화', 'NOW World'],
       thumbnail: {
-        src: '/thumbnails/work-6-youtube.jpg',
+        src: '',
         alt: '태조 궁예 영화 오프닝 시퀀스',
       },
       embed: { type: 'youtube', id: '47qRi4Cqlfg' },
@@ -178,11 +178,11 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['댄스', '배틀', 'NOW World', '숏폼'],
       thumbnail: {
-        src: '/thumbnails/work-7-youtube.jpg',
+        src: '',
         alt: '나우월드 세계배틀 댄스 경연',
       },
-      embed: { type: 'youtube', id: 'sofXgOkQd0c' },
-      link: 'https://youtube.com/shorts/sofXgOkQd0c',
+      embed: { type: 'youtube', id: 'PTwoikL4mKA' },
+      link: 'https://youtube.com/shorts/PTwoikL4mKA',
       description:
         '나우월드 세계배틀 대전 댄스 경연 하이라이트입니다. 에너지·퍼포먼스 중심의 NOW World 콘텐츠입니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
@@ -194,7 +194,7 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['베르세르크', '팬메이드', '실사화', 'NOW World'],
       thumbnail: {
-        src: '/thumbnails/work-8-youtube.jpg',
+        src: '',
         alt: '베르세르크 팬메이드 실사화',
       },
       embed: { type: 'youtube', id: 'JJ2Alyigye0' },
@@ -210,7 +210,7 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['애니', '주인공', '숏폼', '팬메이드'],
       thumbnail: {
-        src: '/thumbnails/work-9-fan-anime-collage.jpg?v=13',
+        src: '',
         alt: '팬메이드 애니 주인공 촬영현장',
       },
       embed: { type: 'youtube', id: 'Q3EurcPRJXU' },
@@ -226,11 +226,11 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['머털도사', '팬메이드', 'NOW World', '숏폼'],
       thumbnail: {
-        src: '/thumbnails/work-10-youtube.jpg',
+        src: '',
         alt: '머털도사 팬메이드 모음',
       },
-      embed: { type: 'youtube', id: 'O0D6jXsjoKQ' },
-      link: 'https://youtu.be/O0D6jXsjoKQ',
+      embed: { type: 'youtube', id: '0TGUvU3-1xQ' },
+      link: 'https://youtu.be/0TGUvU3-1xQ',
       description:
         'NOW World 비공식 팬메이드 — 머털도사 모음집입니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
@@ -242,7 +242,7 @@ export const portfolio: PortfolioProfile = {
       year: '2025',
       tags: ['짤모음', 'NOW World', '바이럴', '숏폼'],
       thumbnail: {
-        src: '/thumbnails/work-11-youtube.jpg',
+        src: '',
         alt: 'NOW 유앤아이 짤 모음집',
       },
       embed: { type: 'youtube', id: 'KCcVqZX6pTE' },

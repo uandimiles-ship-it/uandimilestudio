@@ -43,8 +43,25 @@ export function applyVideoLink(work: PortfolioWork, link: string): PortfolioWork
   }
 }
 
+/** YouTube 자동 썸네일 후보 — 16:9 고화질(maxres) 우선, 없으면 hqdefault */
+export function youtubeThumbnailCandidatesForId(id: string | null | undefined): string[] {
+  const v = id?.trim()
+  if (!v) return []
+  return [
+    `https://i.ytimg.com/vi/${v}/maxresdefault.jpg`,
+    `https://i.ytimg.com/vi/${v}/hqdefault.jpg`,
+  ]
+}
+
+export function youtubeThumbnailCandidates(work: PortfolioWork): string[] {
+  return youtubeThumbnailCandidatesForId(resolveWorkYoutubeId(work))
+}
+
 export function youtubeThumbnailUrl(work: PortfolioWork): string | null {
-  const id = resolveWorkYoutubeId(work)
-  if (!id) return null
-  return `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+  return youtubeThumbnailCandidates(work)[0] ?? null
+}
+
+/** img.youtube.com / i.ytimg.com 자동 썸네일 주소인지 (관리자가 올린 이미지와 구분) */
+export function isYoutubeAutoThumbnailSrc(src: string | null | undefined): boolean {
+  return /^https?:\/\/(img\.youtube\.com|i\.ytimg\.com)\/vi\//.test(src?.trim() ?? '')
 }

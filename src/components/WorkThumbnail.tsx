@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState, type SyntheticEvent } from 'react'
 import { isCapacitorNative } from '../lib/platform'
 
 import type { PortfolioWork } from '../content/portfolio'
 
 import { resolveWorkThumbnailSrc } from '../lib/thumbnailResolve'
 
-import { youtubeThumbnailUrl } from '../lib/youtubeLink'
+import { youtubeThumbnailCandidates } from '../lib/youtubeLink'
 
 import { ThumbnailFramedImage } from './ThumbnailFramedImage'
 
@@ -150,30 +150,40 @@ export function WorkThumbnail({
   work: PortfolioWork
   priority?: boolean
 }) {
-  const [failedSrc, setFailedSrc] = useState<string | null>(null)
-
   const primary = resolveWorkThumbnailSrc(work)
-  const ytFallback = youtubeThumbnailUrl(work)
+  const ytCandidates = youtubeThumbnailCandidates(work)
+  const candidates = [...new Set([primary, ...ytCandidates].filter((u): u is string => Boolean(u)))]
+  const candidatesKey = `${work.id}|${candidates.join('|')}`
+  // 후보 목록이 바뀌면 실패 횟수는 자동으로 0부터 다시 계산
+  const [failed, setFailed] = useState<{ key: string; count: number }>({ key: candidatesKey, count: 0 })
 
-  useEffect(() => {
-    setFailedSrc(null)
-  }, [primary, work.id])
+  const failedCount = failed.key === candidatesKey ? failed.count : 0
+  const src = candidates[failedCount] ?? null
+  const skip = () =>
+    setFailed((prev) => ({
+      key: candidatesKey,
+      count: (prev.key === candidatesKey ? prev.count : 0) + 1,
+    }))
 
-  let src = primary
-  if (src && failedSrc === src) {
-    src = ytFallback && failedSrc !== ytFallback ? ytFallback : null
+  // YouTube는 없는 썸네일에 120x90 회색 이미지를 주는 경우가 있어 다음 후보로 넘김
+  const onLoad = (e: SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    if (src && /i\.ytimg\.com|img\.youtube\.com/.test(src) && img.naturalWidth > 0 && img.naturalWidth <= 120) {
+      skip()
+    }
   }
-  if (src && failedSrc === src) src = null
 
   if (src) {
     return (
       <ThumbnailFramedImage
+        key={src}
         src={src}
-        alt={work.thumbnail.alt || work.title}
+        alt={work.thumbnail.alt?.trim() || work.title}
         layout={work.thumbnailLayout}
         className="absolute inset-0"
         priority={priority || isCapacitorNative()}
-        onError={() => setFailedSrc(src)}
+        onError={skip}
+        onLoad={onLoad}
       />
     )
   }

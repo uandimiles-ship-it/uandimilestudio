@@ -3,7 +3,7 @@ import { portfolio, type PortfolioWork } from '../content/portfolio'
 import { loadLocalPortfolioWorks, saveLocalPortfolioWorks } from './localPortfolioStore'
 
 /** 앱 업데이트 시 기기 캐시의 깨진/누락 항목만 보충 (증가 시 1회 플래그) */
-export const WORKS_BUNDLE_REVISION = 14
+export const WORKS_BUNDLE_REVISION = 15
 
 const REV_KEY = 'uandimilestudio_works_bundle_rev'
 
@@ -31,7 +31,11 @@ function isBrokenThumbnailSrc(src: string): boolean {
 
 function isLegacyEmbed(id: string, stale: PortfolioWork): boolean {
   if (id === 'work-2') return stale.embed?.id === 'ogRnN_z5wSQ'
-  if (id === 'work-3') return stale.embed?.id === 'V1w2L2wLTcc'
+  if (id === 'work-3') return stale.embed?.id === 'V1w2L2wLTcc' || stale.embed?.id === '2MySKc88UxU'
+  // 유튜브 재업로드로 삭제된 옛 영상 ID
+  if (id === 'work-1') return stale.embed?.id === '6bSicVeKD1Y'
+  if (id === 'work-7') return stale.embed?.id === 'sofXgOkQd0c'
+  if (id === 'work-10') return stale.embed?.id === 'O0D6jXsjoKQ'
   return false
 }
 
