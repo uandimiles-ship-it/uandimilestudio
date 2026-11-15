@@ -92,19 +92,19 @@ export const portfolio: PortfolioProfile = {
     },
     {
       id: 'work-2',
-      title: '유앤아이 스튜디오 · 브랜드별 광고 영상',
+      title: '유앤아이 스튜디오 · AI 영상 · 브랜드 광고 · 홍보 대행',
       creator: '유앤아이 스튜디오',
-      subtitle: 'Brand Ads · YouTube',
+      subtitle: 'AI Video · Brand Ads · YouTube',
       year: '2026',
-      tags: ['브랜드광고', '유앤아이 스튜디오', '숏폼', '가상브랜드'],
+      tags: ['AI영상제작', '브랜드광고', '홍보대행', '유앤아이 스튜디오'],
       thumbnail: {
         src: '',
-        alt: 'U&I STUDIO — 브랜드별 광고 영상',
+        alt: 'U&I STUDIO — AI 영상 · 브랜드 광고 · 홍보 대행 서비스 소개',
       },
-      embed: { type: 'youtube', id: 'aUAqQjkaIgA' },
-      link: 'https://youtu.be/aUAqQjkaIgA?si=EVR2zz5Ks4fzJ7AX',
+      embed: { type: 'youtube', id: 'sf7KVexLvGk' },
+      link: 'https://youtu.be/sf7KVexLvGk',
       description:
-        '유튜브 가상 브랜드 광고 모음 영상입니다. 유앤아이 신발·향수·화장품·숯불갈비·인테리어·유앤아이 버섯·유앤아이 커피·다이어트·의류·청소기 등 브랜드별 숏 광고를 한 편에 담았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
+        'AI 영상 · 브랜드 · 광고 · 홍보 대행 서비스 소개 영상입니다. 사진 한 장을 영화처럼 — 카페·음식점, 앱·IT, 이벤트, 지역 상점 등 브랜드별 광고·홍보 영상을 기획부터 촬영, 편집, 모션 그래픽까지 대행합니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
     {
       id: 'work-3',
