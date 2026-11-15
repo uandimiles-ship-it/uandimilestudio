@@ -3,7 +3,7 @@ import { portfolio, type PortfolioWork } from '../content/portfolio'
 import { loadLocalPortfolioWorks, saveLocalPortfolioWorks } from './localPortfolioStore'
 
 /** 앱 업데이트 시 기기 캐시의 깨진/누락 항목만 보충 (증가 시 1회 플래그) */
-export const WORKS_BUNDLE_REVISION = 20
+export const WORKS_BUNDLE_REVISION = 21
 
 const REV_KEY = 'uandimilestudio_works_bundle_rev'
 

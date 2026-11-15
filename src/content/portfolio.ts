@@ -194,7 +194,7 @@ export const portfolio: PortfolioProfile = {
       year: '2026',
       tags: ['궁예', '시퀀스', '역사영화', 'NOW World'],
       thumbnail: {
-        src: '',
+        src: '/thumbnails/work-6-gungye-16x9.jpg',
         alt: '태조 궁예 영화 오프닝 시퀀스',
       },
       embed: { type: 'youtube', id: '47qRi4Cqlfg' },
