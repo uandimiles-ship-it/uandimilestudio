@@ -43,6 +43,8 @@ const placeholderConfigs: Record<
 
   'work-12': { bg1: '#18181b', bg2: '#27272a', accent: '#84cc16', label: '머털도사', sub: 'LIVE ACTION' },
 
+  'work-13': { bg1: '#18181b', bg2: '#27272a', accent: '#c084fc', label: 'LOVE', sub: 'MUSIC VIDEO' },
+
 }
 
 

@@ -139,6 +139,22 @@ export const portfolio: PortfolioProfile = {
         'NOW MUSIC 18곡 통합본입니다. U&I 러브송·NOW Books OST·시간여행 테마 곡을 한 편에 담았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
     {
+      id: 'work-13',
+      title: '하나님과의 약속 OST · Love (뮤직비디오)',
+      creator: '유앤아이 스튜디오',
+      subtitle: 'Music Video · Original Song',
+      year: '2026',
+      tags: ['하나님과의약속', 'OST', '뮤직비디오', '오리지널송'],
+      thumbnail: {
+        src: '/thumbnails/work-13-love-mv.jpg',
+        alt: '하나님과의 약속 OST · Love (뮤직비디오)',
+      },
+      embed: { type: 'youtube', id: 'JU0LHZfcHXA' },
+      link: 'https://youtu.be/JU0LHZfcHXA',
+      description:
+        '하나님과의 약속 OST 「LOVE (러브)」 감성 뮤직비디오입니다. 이순간이 부른 오리지널 곡(Original Song)을 영상으로 담았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
+    },
+    {
       id: 'work-5',
       title: '나우 애니 · 지브리 감성 러브스토리',
       creator: '유앤아이 스튜디오',
