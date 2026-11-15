@@ -45,6 +45,8 @@ const placeholderConfigs: Record<
 
   'work-13': { bg1: '#18181b', bg2: '#27272a', accent: '#c084fc', label: 'LOVE', sub: 'MUSIC VIDEO' },
 
+  'work-14': { bg1: '#18181b', bg2: '#27272a', accent: '#e879f9', label: 'NEON', sub: 'FAN MADE' },
+
 }
 
 

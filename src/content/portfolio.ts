@@ -155,6 +155,22 @@ export const portfolio: PortfolioProfile = {
         '하나님과의 약속 OST 「LOVE (러브)」 감성 뮤직비디오입니다. 이순간이 부른 오리지널 곡(Original Song)을 영상으로 담았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
     {
+      id: 'work-14',
+      title: 'NEON (니온) · 팬메이드',
+      creator: '유앤아이 스튜디오',
+      subtitle: 'Fan Made · Music Video',
+      year: '2026',
+      tags: ['NEON', '니온', '팬메이드', 'AIJING'],
+      thumbnail: {
+        src: '/thumbnails/work-14-neon-fanmade.jpg',
+        alt: 'NEON (니온) · 팬메이드',
+      },
+      embed: { type: 'youtube', id: 'KvMeunfp3bk' },
+      link: 'https://youtu.be/KvMeunfp3bk',
+      description:
+        'A2O LITE의 「NEON (니온)」을 AIJING(아이찡)이 AI 댄스로 표현한 팬메이드 영상입니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
+    },
+    {
       id: 'work-5',
       title: '나우 애니 · 지브리 감성 러브스토리',
       creator: '유앤아이 스튜디오',

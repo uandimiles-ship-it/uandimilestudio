@@ -3,7 +3,7 @@ import { portfolio, type PortfolioWork } from '../content/portfolio'
 import { loadLocalPortfolioWorks, saveLocalPortfolioWorks } from './localPortfolioStore'
 
 /** 앱 업데이트 시 기기 캐시의 깨진/누락 항목만 보충 (증가 시 1회 플래그) */
-export const WORKS_BUNDLE_REVISION = 18
+export const WORKS_BUNDLE_REVISION = 19
 
 const REV_KEY = 'uandimilestudio_works_bundle_rev'
 
@@ -21,6 +21,7 @@ const PATCHED_WORK_IDS = [
   'work-11',
   'work-12',
   'work-13',
+  'work-14',
 ] as const
 
 function bundledWork(id: string): PortfolioWork | undefined {
