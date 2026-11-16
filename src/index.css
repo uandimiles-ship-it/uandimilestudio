@@ -97,3 +97,11 @@ body.capacitor-native .now-ai-fab {
   right: auto;
   bottom: calc(max(1.25rem, env(safe-area-inset-bottom, 0px)) + 0.5rem);
 }
+
+/* 웹: NOW AI 배지 위로 방패를 올려 겹치지 않게 */
+.admin-shield-fab {
+  bottom: calc(max(12px, env(safe-area-inset-bottom, 0px)) + 66px);
+}
+body.capacitor-native .admin-shield-fab {
+  bottom: calc(max(1.25rem, env(safe-area-inset-bottom, 0px)) + 0.5rem);
+}
