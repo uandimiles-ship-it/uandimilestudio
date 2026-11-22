@@ -71,7 +71,7 @@ export const portfolio: PortfolioProfile = {
     kakao: 'https://pf.kakao.com/_QxnCzX/chat',
     soomgo: 'https://soomgo.com/profile/users/19272777',
     // 승인 후 내 서비스 공유 링크로 교체 (예: https://kmong.com/gig/...)
-    kmong: '',
+    kmong: 'https://kmong.com/gig/832526',
   },
   works: [
     {
