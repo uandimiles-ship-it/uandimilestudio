@@ -96,7 +96,7 @@ export const portfolio: PortfolioProfile = {
       creator: '유앤아이 스튜디오',
       subtitle: 'JESUS 280805 · YouTube',
       year: '2026',
-      tags: ['JESUS 280805', '최후심판', '예언', '유앤아이 스튜디오'],
+      tags: ['JESUS 280805', '최후심판', '마지막계획', '유앤아이 스튜디오'],
       thumbnail: {
         src: '',
         alt: '너가 예수다. 적그리스도의 최후 심판. (JESUS 280805)',
