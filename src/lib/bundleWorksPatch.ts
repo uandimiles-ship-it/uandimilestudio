@@ -3,7 +3,7 @@ import { portfolio, type PortfolioWork } from '../content/portfolio'
 import { loadLocalPortfolioWorks, saveLocalPortfolioWorks } from './localPortfolioStore'
 
 /** 앱 업데이트 시 기기 캐시의 깨진/누락 항목만 보충 (증가 시 1회 플래그) */
-export const WORKS_BUNDLE_REVISION = 21
+export const WORKS_BUNDLE_REVISION = 22
 
 const REV_KEY = 'uandimilestudio_works_bundle_rev'
 
@@ -22,6 +22,7 @@ const PATCHED_WORK_IDS = [
   'work-12',
   'work-13',
   'work-14',
+  'work-15',
 ] as const
 
 function bundledWork(id: string): PortfolioWork | undefined {
@@ -36,7 +37,7 @@ function isLegacyEmbed(id: string, stale: PortfolioWork): boolean {
   if (id === 'work-2') return stale.embed?.id === 'ogRnN_z5wSQ' || stale.embed?.id === 'aUAqQjkaIgA'
   if (id === 'work-3') return stale.embed?.id === 'V1w2L2wLTcc' || stale.embed?.id === '2MySKc88UxU'
   // 유튜브 재업로드로 삭제된 옛 영상 ID
-  if (id === 'work-1') return stale.embed?.id === '6bSicVeKD1Y'
+  if (id === 'work-1') return stale.embed?.id === '6bSicVeKD1Y' || stale.embed?.id === '-vM46z8LFWk'
   if (id === 'work-7') return stale.embed?.id === 'sofXgOkQd0c'
   if (id === 'work-10') return stale.embed?.id === 'O0D6jXsjoKQ'
   return false
@@ -68,7 +69,17 @@ export function patchLocalWorksFromBundle(
 
     const stale = patched.find((w) => w.id === id)
     if (!stale) {
-      patched.push(bundled)
+      const bundleOrder = portfolio.works.map((w) => w.id)
+      const bundlePos = bundleOrder.indexOf(id)
+      let insertAt = patched.length
+      for (let i = bundlePos - 1; i >= 0; i--) {
+        const prevIdx = patched.findIndex((w) => w.id === bundleOrder[i])
+        if (prevIdx >= 0) {
+          insertAt = prevIdx + 1
+          break
+        }
+      }
+      patched.splice(insertAt, 0, bundled)
       anyPatch = true
       continue
     }

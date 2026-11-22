@@ -91,6 +91,22 @@ export const portfolio: PortfolioProfile = {
         'NOW World 통합 브랜드 소개 영상입니다. 웹·앱·게임·NOW Books·NOW Music 등 NOW World 나우월드 브랜드를 한 편의 브랜드 필름으로 담았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
     {
+      id: 'work-15',
+      title: '너가 예수다. 적그리스도의 최후 심판. (JESUS 280805)',
+      creator: '유앤아이 스튜디오',
+      subtitle: 'JESUS 280805 · YouTube',
+      year: '2026',
+      tags: ['JESUS 280805', '최후심판', '예언', '유앤아이 스튜디오'],
+      thumbnail: {
+        src: '',
+        alt: '너가 예수다. 적그리스도의 최후 심판. (JESUS 280805)',
+      },
+      embed: { type: 'youtube', id: 'uRv_ZxemUyY' },
+      link: 'https://youtu.be/uRv_ZxemUyY',
+      description:
+        '「너가 예수다. 적그리스도의 최후 심판. (JESUS 280805)」입니다. 최후의 심판, 그날이 온다는 메시지를 담은 영상입니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
+    },
+    {
       id: 'work-2',
       title: '유앤아이 스튜디오 · AI 영상 · 브랜드 광고 · 홍보 대행',
       creator: '유앤아이 스튜디오',
