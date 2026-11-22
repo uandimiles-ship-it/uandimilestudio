@@ -85,8 +85,8 @@ export const portfolio: PortfolioProfile = {
         src: '',
         alt: 'U&I STUDIO — NOW World 브랜드 필름',
       },
-      embed: { type: 'youtube', id: '-vM46z8LFWk' },
-      link: 'https://youtu.be/-vM46z8LFWk',
+      embed: { type: 'youtube', id: 'J_UzhS8JER0' },
+      link: 'https://youtu.be/J_UzhS8JER0',
       description:
         'NOW World 통합 브랜드 소개 영상입니다. 웹·앱·게임·NOW Books·NOW Music 등 NOW World 나우월드 브랜드를 한 편의 브랜드 필름으로 담았습니다.\n\n영상 제작 · 유앤아이 스튜디오 (U&I STUDIO)',
     },
